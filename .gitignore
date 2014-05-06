@@ -41,3 +41,5 @@
 
 # other
 *.iws
+ImageFetcher/.gradle
+ImageFetcher/build
