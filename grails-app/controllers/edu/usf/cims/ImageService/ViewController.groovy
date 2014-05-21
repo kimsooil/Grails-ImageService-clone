@@ -27,7 +27,13 @@ class ViewController {
 
         def imageData = imageLocatorService.locate(params.serviceName, result)
 
-        log.error("VIEW|${request.getRemoteAddr()}|${params.serviceName}|${token}|${result.result}|${result.message}|${imageData.type}")
+        def logMessage = "VIEW|${request.getRemoteAddr()}|${params.serviceName}|${token}|${result.result}|${result.message}|${imageData.type}"
+
+        if (result.result == 'error'){
+            log.error(logMessage)
+        } else {
+            log.info(logMessage)
+        }
 
         //Read image from file
         def BufferedImage i = ImageIO.read(imageData.file)
@@ -69,7 +75,7 @@ class ViewController {
     }
 
     def showError = {
-        renderError(500, "ERROR")
+        renderError(500, "Bad Request")
     }
 
     def renderError(statusCode, errorMessage){

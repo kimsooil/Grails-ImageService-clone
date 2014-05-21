@@ -22,8 +22,8 @@ class TokenValidatorService {
             return results
         }
 
-        //All decrypted tokens should be in this format: ############|U########
-        if (! (plaintext ==~ /\d{13}\|U\d{8}/)) {
+        //All decrypted tokens should be in this format: unixtime|U########
+        if (! (plaintext ==~ /\d{1,}\|U\d{8}/)) {
             results = [result: 'error', message: "Token decryption failed or incorrect token format. Result was: ${plaintext.encodeAsBase64()}"]
             return results
         }
@@ -35,7 +35,7 @@ class TokenValidatorService {
             // Convert max/min time offset into a Date object
             def minTime = ((grailsApplication.config.maxTimeDrift).seconds.ago).time
             def maxTime = ((grailsApplication.config.maxTimeDrift).seconds.from.now).time
-            def myTime = tokenData[0].toLong()
+            def myTime = tokenData[0].toLong() * 1000
 
             if(!( minTime < myTime && myTime < maxTime)){
                 results = [result: 'error', message: "Token time [${myTime}] out of range [${minTime} - ${maxTime}"]
