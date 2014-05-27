@@ -23,7 +23,7 @@ class TokenValidatorService {
         }
 
         //All decrypted tokens should be in this format: unixtime|U########
-        if (! (plaintext ==~ /\d{1,}\|U\d{8}/)) {
+        if (! (plaintext ==~ /\d{10,13}\|U\d{8}.*/)) {
             results = [result: 'error', message: "Token decryption failed or incorrect token format. Result was: ${plaintext.encodeAsBase64()}"]
             return results
         }
