@@ -1,6 +1,11 @@
 apply plugin: 'java'
 apply plugin: 'groovy'
 
+group = 'edu.usf.cims'
+sourceCompatibility = 1.6
+version = '1.0.0'
+
+
 repositories {
     mavenCentral()
 }

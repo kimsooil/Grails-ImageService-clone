@@ -67,7 +67,7 @@ public class ImageServiceClient {
     }
 
   private static String AESencrypt(String input, String key){
-    byte[] crypted = null;
+    byte[] output = null;
     try{
 
       //Create a random initialization vector
@@ -82,36 +82,16 @@ public class ImageServiceClient {
 
         byte[] ivBytes = iv.getIV();
         byte[] inputBytes = input.getBytes();
-        byte[] plaintext = new byte[ivBytes.length + inputBytes.length];
+        byte[] crypted = cipher.doFinal(inputBytes);
 
-        System.arraycopy(ivBytes, 0, plaintext, 0, ivBytes.length);
-        System.arraycopy(inputBytes, 0, plaintext, ivBytes.length, inputBytes.length);
+        output = new byte[ivBytes.length + crypted.length];
 
-        crypted = cipher.doFinal(plaintext);
+        System.arraycopy(ivBytes, 0, output, 0, ivBytes.length);
+        System.arraycopy(crypted, 0, output, ivBytes.length, crypted.length);
+
       }catch(Exception e){
           System.out.println(e.toString());
       }
-      return new String(Base64.encodeBase64(crypted));
-  }
-
-  private static String AESdecrypt(String input, String key){
-      byte[] output = null;
-      byte[] rawData = Base64.decodeBase64(input);
-      byte[] iv = new byte[16];
-      byte[] cipherText = new byte[rawData.length - iv.length];
-
-      //Split the iv and the cipher text
-      System.arraycopy(rawData, 0, iv, 0, 16);
-      System.arraycopy(rawData, 16, cipherText, 0, cipherText.length);
-      try{
-        SecretKeySpec skey = new SecretKeySpec(key.getBytes(), "AES");
-        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-        cipher.init(Cipher.DECRYPT_MODE, skey, new IvParameterSpec(iv));
-
-        output = cipher.doFinal(cipherText);
-      }catch(Exception e){
-        System.out.println(e.toString());
-      }
-      return new String(output);
+      return new String(Base64.encodeBase64(output, true, true));
   }
 }

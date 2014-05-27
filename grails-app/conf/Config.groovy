@@ -94,6 +94,6 @@ privateImageDir = '/tmp/images-priv'
 
 //Keys to decrypt tokens with
 services = [
-  test: [privacy: false, key:'abcdefghijklmnop'],
-  test2: [privacy: true, key:'ABCDEFGHIJKLMNOP']
+  test: [privacy: false, key:'AfoaKlDM4AjVyjo38f0NOs4O6hXM1T32'],
+  test2: [privacy: true, key:'8fKqPyfAah56cRXM0Qafkom10zn7Upw2']
 ]
