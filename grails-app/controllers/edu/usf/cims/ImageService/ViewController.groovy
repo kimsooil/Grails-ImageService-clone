@@ -1,7 +1,6 @@
 package edu.usf.cims.ImageService
 
 import java.awt.image.BufferedImage
-
 import javax.imageio.ImageIO
 import org.imgscalr.Scalr
 import org.imgscalr.Scalr.Method
@@ -21,6 +20,8 @@ class ViewController {
     def index = {}
 
     def viewImage = {
+
+        // The token is the image filename
         def token = params.requestFile.replaceAll(/(\.jpg|\.JPG)$/,"")
 
         def result = tokenValidatorService.validateToken(params.serviceName, token)
@@ -35,7 +36,7 @@ class ViewController {
             log.info(logMessage)
         }
 
-        //Read image from file
+        // Read image from file
         def BufferedImage i = ImageIO.read(imageData.file)
         response.contentType = "image/jpeg"
         ImageIO.write(i, "jpg", response.outputStream)
@@ -43,16 +44,24 @@ class ViewController {
     }
 
     def resizeImage = {
-        //Check images resize parameters
-        if ((! params.width.isNumber() ) || (! params.height.isNumber() )) {
+        // Image size must be an integer
+        if ( (! params.width.isNumber()) || (! params.height.isNumber()) ) {
             renderError(500 , "Width and Height must be numbers")
             return
         }
-        if((params.width.toInteger() > grailsApplication.config.maxImageWidth.toInteger()) || (params.width.toInteger() < grailsApplication.config.minImageWidth.toInteger()) ){
+
+        // Image width must be in the correct range
+        if( (params.width.toInteger() > grailsApplication.config.maxImageWidth.toInteger())
+            || (params.width.toInteger() < grailsApplication.config.minImageWidth.toInteger())
+          ){
             renderError(500, "Image width must be between ${grailsApplication.config.minImageWidth} and ${grailsApplication.config.maxImageWidth}")
             return
         }
-        if((params.height.toInteger() > grailsApplication.config.maxImageHeight.toInteger()) || (params.height.toInteger() < grailsApplication.config.minImageHeight.toInteger()) ){
+
+        // Image height must be in the correct range
+        if( (params.height.toInteger() > grailsApplication.config.maxImageHeight.toInteger())
+            || (params.height.toInteger() < grailsApplication.config.minImageHeight.toInteger())
+          ){
             renderError(500, "Image height must be between ${grailsApplication.config.minImageHeight} and ${grailsApplication.config.maxImageHeight}")
             return
         }

@@ -14,7 +14,7 @@ import java.security.spec.KeySpec;
 import java.io.UnsupportedEncodingException;
 import org.apache.commons.codec.binary.Base64;
 import java.security.SecureRandom;
-
+import javax.crypto.Mac;
 
 public class Security {
 
@@ -22,7 +22,7 @@ public class Security {
     byte[] crypted = null;
     try{
 
-      //Create a random initialization vector
+      // Create a random initialization vector.
       SecureRandom random = new SecureRandom();
       byte[] randBytes = new byte[16];
       random.nextBytes(randBytes);
@@ -36,6 +36,7 @@ public class Security {
         byte[] inputBytes = input.getBytes();
         byte[] plaintext = new byte[ivBytes.length + inputBytes.length];
 
+        // Prepend the IV to the ciphertext.
         System.arraycopy(ivBytes, 0, plaintext, 0, ivBytes.length);
         System.arraycopy(inputBytes, 0, plaintext, ivBytes.length, inputBytes.length);
 
@@ -52,7 +53,7 @@ public class Security {
       byte[] iv = new byte[16];
       byte[] cipherText = new byte[rawData.length - iv.length];
 
-      //Split the iv and the cipher text
+      // Split the iv from the ciphertext.
       System.arraycopy(rawData, 0, iv, 0, 16);
       System.arraycopy(rawData, 16, cipherText, 0, cipherText.length);
       try{
@@ -67,30 +68,27 @@ public class Security {
       return new String(output);
   }
 
-  public static String AESencryptECB(String input, String key){
-    byte[] crypted = null;
-    try{
-      SecretKeySpec skey = new SecretKeySpec(key.getBytes(), "AES");
-        Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
-        cipher.init(Cipher.ENCRYPT_MODE, skey);
-        crypted = cipher.doFinal(input.getBytes());
-      }catch(Exception e){
-          System.out.println(e.toString());
-      }
-      return new String(Base64.encodeBase64(crypted));
-  }
+  public static String HMACdigest(String msg, String keyString, String algo, String encoding) {
+    String digest = null;
+    try {
+        SecretKeySpec key = new SecretKeySpec(keyString.getBytes(), algo);
+        Mac mac = Mac.getInstance(algo);
+        mac.init(key);
 
-  public static String AESdecryptECB(String input, String key){
-      byte[] output = null;
-      try{
-        SecretKeySpec skey = new SecretKeySpec(key.getBytes(), "AES");
-        Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
-        cipher.init(Cipher.DECRYPT_MODE, skey);
-        output = cipher.doFinal(Base64.decodeBase64(input));
-      }catch(Exception e){
+        byte[] bytes = mac.doFinal(msg.getBytes(encoding));
+
+        StringBuffer hash = new StringBuffer();
+        for (int i = 0; i < bytes.length; i++) {
+            String hex = Integer.toHexString(0xFF & bytes[i]);
+            if (hex.length() == 1) {
+                hash.append('0');
+            }
+            hash.append(hex);
+        }
+        digest = hash.toString();
+    } catch (Exception e){
         System.out.println(e.toString());
-      }
-      return new String(output);
+    }
+    return digest;
   }
-
 }
