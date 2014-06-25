@@ -30,6 +30,6 @@ grails.project.dependency.resolution = {
     plugins {
         runtime ':external-config-reload:1.4.1'
         build ":tomcat:$grailsVersion"
-        build ":hibernate:$grailsVersion"
+        compile ":hibernate:$grailsVersion"
     }
 }
