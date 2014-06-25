@@ -1,5 +1,16 @@
-//Load external config
-grails.config.locations = [ "file:/usr/local/etc/grails/${appName}.groovy" ]
+grails.config.locations = ["file:/usr/local/etc/grails/ImageService.groovy"]
+
+/**
+ * Automatically reload external config files using this plugin:
+ * https://github.com/adaptivecomputing/grails-external-config-reload
+**/
+grails.plugins.reloadConfig.enabled = true
+grails.plugins.reloadConfig.includeConfigLocations = true // Reload all files in grails.config.locations
+grails.plugins.reloadConfig.files = [] // If includeConfigLocations is true, leave this as an empty list.
+grails.plugins.reloadConfig.interval = 5000 // 5 seconds
+grails.plugins.reloadConfig.notifyPlugins = []
+grails.plugins.reloadConfig.automerge = true
+grails.plugins.reloadConfig.notifyWithConfig = true
 
 grails.project.groupId = appName // change this to alter the default package name and Maven publishing destination
 grails.mime.file.extensions = true // enables the parsing of file extensions from URLs into the request format
