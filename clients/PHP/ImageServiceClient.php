@@ -1,28 +1,24 @@
 <?php
 class ImageServiceClient {
 
-    public static function getImageURL($imageServiceHost, $imageServicePort, $usfid, $keyName, $keyData){
-
-        $imageServiceLoc = 'http://localhost:8080/ImageService/view/';
+    public static function getImageURL($imageServiceScheme, $imageServiceHost, $imageServicePort, $imageServicePath, $identifier, $keyName, $keyData, $separator = '|'){
 
         // Create the plaintext containing the current time and the Unumber requested
-        $plaintext = time() . '|' . $usfid;
+        $plaintext = time() . $separator . $identifier;
 
         //Encrypt the token
         $encryptedToken = ImageServiceClient::encrypt($plaintext, $keyData);
-        return 'https://'.$imageServiceHost.':'.$imageServicePort.'/ImageService/view/'.$keyName.'/'.urlencode($encryptedToken).'.jpg';
+        return $imageServiceScheme.'://'.$imageServiceHost.':'.$imageServicePort.$imageServicePath.'/view/'.$keyName.'/'.urlencode($encryptedToken).'.jpg';
     }
 
-    public static function getResizedImageURL($imageServiceHost, $imageServicePort, $usfid, $keyName, $keyData, $width, $height){
-
-        $imageServiceLoc = 'http://localhost:8080/ImageService/view/';
+    public static function getResizedImageURL($imageServiceScheme, $imageServiceHost, $imageServicePort, $imageServicePath, $identifier, $keyName, $keyData, $width, $height, $separator = '|'){
 
         // Create the plaintext containing the current time and the Unumber requested
-        $plaintext = time() . '|' . $usfid;
+        $plaintext = time() . $separator . $identifier;
 
         //Encrypt the token
         $encryptedToken = ImageServiceClient::encrypt($plaintext, $keyData);
-        return 'https://'.$imageServiceHost.':'.$imageServicePort.'/ImageService/view/'.$keyName.'/'.$width.'/'.$height.'/'.urlencode($encryptedToken).'.jpg';
+        return $imageServiceScheme.'://'.$imageServiceHost.':'.$imageServicePort.$imageServicePath.'/view/'.$keyName.'/'.$width.'/'.$height.'/'.urlencode($encryptedToken).'.jpg';
     }
 
     private static function encrypt($input, $key, $filename_safe = TRUE) {

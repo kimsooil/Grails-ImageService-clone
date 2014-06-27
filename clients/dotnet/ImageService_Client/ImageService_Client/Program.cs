@@ -10,6 +10,8 @@ namespace ImageService_Client
 		/// </summary>
 		public static void Main(string[] args)
 		{
+			/// Set to the connection type for ImageService server
+			string imageServiceScheme = "http";
 			/// Set to the hostname of your ImageService server.
 			string imageServiceHost = "localhost";
 			/// Set to the port of your ImageService server
@@ -22,11 +24,15 @@ namespace ImageService_Client
 			string keyData = "AfoaKlDM4AjVyjo38f0NOs4O6hXM1T32";
 			/// Set to the Unumber you want to get the image for
 			string usfid = "U44989263";
+			/// Custom plaintext separator (default is |)
+			string separator = "-";
 
-			string url = ImageServiceClient.getImageUrl (imageServiceHost, imageServicePort, imageServicePath, keyName, keyData, usfid);
-			Console.WriteLine ("Normal image;" + url);
-			string resized = ImageServiceClient.getResizedImageUrl (imageServiceHost, imageServicePort, imageServicePath, keyName, keyData, usfid, 300, 300);
-			Console.WriteLine ("Resized to 300x300:" + resized);
+			string url = ImageServiceClient.getImageUrl (imageServiceHost, imageServicePath, keyName, keyData, usfid);
+			Console.WriteLine ("Normal image: " + url);
+			string resized = ImageServiceClient.getResizedImageUrl (imageServiceHost, imageServicePath, keyName, keyData, usfid, 300, 300);
+			Console.WriteLine ("Resized to 300x300: " + resized);
+			string httpUrl = ImageServiceClient.getImageUrl (imageServiceScheme, imageServiceHost, imageServicePort, imageServicePath, separator, keyName, keyData, usfid);
+			Console.WriteLine ("Normal image or HTTP: " + httpUrl);
 		}
 	}
 }

@@ -43,5 +43,5 @@
 *.iws
 ImageFetcher/.gradle
 ImageFetcher/build
-TokenGenerators/Java/ImageServiceClient/.gradle
-TokenGenerators/Java/ImageServiceClient/build
+clients/Java/ImageServiceClient/.gradle
+clients/Java/ImageServiceClient/build
