@@ -12,17 +12,19 @@ namespace ImageService_Client
 		/// <summary>
 		/// Construct a URL to retreive an image for the specified USFid.
 		/// </summary>
+		/// <param name="scheme">The scheme of the ImageService server connection (http/https).</param>
 		/// <param name="host">The hostname of the ImageService server.</param>
 		/// <param name="port">The port of the ImageService service.</param>
-		/// <param name="path">The base path of the ImageService service.</param>
+ 		/// <param name="path">The base path of the ImageService service.</param>
+		/// <param name="separator">Separtor charctore between itimestamp and identifier</param>
 		/// <param name="keyName">Name of the encryption key that will be used.</param>
 		/// <param name="keyData">Encryption key.</param>
-		/// <param name="usfid">USFid number for the requested image.</param>
-		public static String getImageUrl(String host, int port, String path, String keyName, String keyData, String usfid) {
+		/// <param name="identifier">identifier for the requested image.</param>
+		public static String getImageUrl(String scheme, String host, int port, String path, String separator, String keyName, String keyData, String identifier) {
 		
 			String unixTimestamp = ( (int) (DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds).ToString();
 
-			String plaintext = unixTimestamp + "|" + usfid;  
+			String plaintext = unixTimestamp + separator + identifier;  
 
 			String encryptedToken = ImageServiceClient.encrypt(keyData, plaintext);
 
@@ -30,7 +32,62 @@ namespace ImageService_Client
 			uri.Host = host;
 			uri.Port = port;
 			uri.Path = path + "/view/" + keyName + "/" + encryptedToken + ".jpg";
-			uri.Scheme = "https";
+			uri.Scheme = scheme;
+			return uri.ToString(); 
+		}
+
+		/// <summary>
+		/// Construct a URL to retreive an image for the specified USFid.
+		/// </summary>
+		/// <param name="host">The hostname of the ImageService server.</param>
+		/// <param name="port">The port of the ImageService service.</param>
+		/// <param name="path">The base path of the ImageService service.</param>
+		/// <param name="separator">Separtor charctore between itimestamp and identifier</param>
+		/// <param name="keyName">Name of the encryption key that will be used.</param>
+		/// <param name="keyData">Encryption key.</param>
+		/// <param name="identifier">identifier for the requested image.</param>
+		public static String getImageUrl(String host, int port, String path, String separator, String keyName, String keyData, String identifier) {
+			return getImageUrl("https", host, port, path, separator, keyName, keyData, identifier);
+		}
+
+		/// <summary>
+		/// Construct a URL to retreive an image for the specified USFid.
+		/// </summary>
+		/// <param name="host">The hostname of the ImageService server.</param>
+		/// <param name="path">The base path of the ImageService service.</param>
+		/// <param name="keyName">Name of the encryption key that will be used.</param>
+		/// <param name="keyData">Encryption key.</param>
+		/// <param name="identifier">identifier for the requested image.</param>
+		public static String getImageUrl(String host, String path, String keyName, String keyData, String identifier) {
+			return getImageUrl("https", host, 443, path, "|", keyName, keyData, identifier);
+		}
+
+		/// <summary>
+		/// Construct a URL to retreive an image for the specified USFid and resize the image to specific height/width values.
+		/// </summary>
+		/// <param name="scheme">The scheme of the ImageService server connection (http/https).</param>
+		/// <param name="host">The hostname of the ImageService server.</param>
+		/// <param name="port">The port of the ImageService service.</param>
+		/// <param name="path">The base path of the ImageService service.</param>
+		/// <param name="separator">Separtor charctore between itimestamp and identifier</param>
+		/// <param name="keyName">Name of the encryption key that will be used.</param>
+		/// <param name="keyData">Encryption key.</param>
+		/// <param name="identifier">identifier for the requested image.</param>
+		/// <param name="width">Image width in pixels.</param>
+		/// <param name="height">Image height in pixels.</param>
+		public static String getResizedImageUrl(String scheme, String host, int port, String path, String separator, String keyName, String keyData, String identifier, int width, int height) {
+
+			String unixTimestamp = ( (int) (DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds).ToString();
+
+			String plaintext = unixTimestamp + separator + identifier;  
+
+			String encryptedToken = ImageServiceClient.encrypt(keyData, plaintext);
+
+			UriBuilder uri = new UriBuilder();
+			uri.Host = host;
+			uri.Port = port;
+			uri.Path = path + "/view/" + keyName + "/" + width + "/" + height + "/" + encryptedToken + ".jpg";
+			uri.Scheme = scheme;
 			return uri.ToString(); 
 		}
 
@@ -40,25 +97,28 @@ namespace ImageService_Client
 		/// <param name="host">The hostname of the ImageService server.</param>
 		/// <param name="port">The port of the ImageService service.</param>
 		/// <param name="path">The base path of the ImageService service.</param>
+		/// <param name="separator">Separtor charctore between itimestamp and identifier</param>
 		/// <param name="keyName">Name of the encryption key that will be used.</param>
 		/// <param name="keyData">Encryption key.</param>
-		/// <param name="usfid">USFid number for the requested image.</param>
+		/// <param name="identifier">identifier for the requested image.</param>
 		/// <param name="width">Image width in pixels.</param>
 		/// <param name="height">Image height in pixels.</param>
-		public static String getResizedImageUrl(String host, int port, String path, String keyName, String keyData, String usfid, int width, int height) {
+		public static String getResizedImageUrl(String host, int port, String path, String separator, String keyName, String keyData, String identifier, int width, int height) {
+			return getResizedImageUrl("https", host, port, path, separator, keyName, keyData, identifier, width, height);
+		}
 
-			String unixTimestamp = ( (int) (DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds).ToString();
-
-			String plaintext = unixTimestamp + "|" + usfid;  
-
-			String encryptedToken = ImageServiceClient.encrypt(keyData, plaintext);
-
-			UriBuilder uri = new UriBuilder();
-			uri.Host = host;
-			uri.Port = port;
-			uri.Path = path + "/view/" + keyName + "/" + width + "/" + height + "/" + encryptedToken + ".jpg";
-			uri.Scheme = "https";
-			return uri.ToString(); 
+		/// <summary>
+		/// Construct a URL to retreive an image for the specified USFid and resize the image to specific height/width values.
+		/// </summary>
+		/// <param name="host">The hostname of the ImageService server.</param>
+		/// <param name="path">The base path of the ImageService service.</param>
+		/// <param name="keyName">Name of the encryption key that will be used.</param>
+		/// <param name="keyData">Encryption key.</param>
+		/// <param name="identifier">identifier for the requested image.</param>
+		/// <param name="width">Image width in pixels.</param>
+		/// <param name="height">Image height in pixels.</param>
+		public static String getResizedImageUrl(String host, String path, String keyName, String keyData, String identifier, int width, int height) {
+			return getResizedImageUrl("https", host, 443, path, "|", keyName, keyData, identifier, width, height);
 		}
 
 		/// <summary>
