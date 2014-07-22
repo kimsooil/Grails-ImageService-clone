@@ -21,13 +21,13 @@ class ImageServiceClient {
         return $imageServiceScheme.'://'.$imageServiceHost.':'.$imageServicePort.$imageServicePath.'/view/'.$keyName.'/'.$width.'/'.$height.'/'.urlencode($encryptedToken).'.jpg';
     }
 
-    private static function encrypt($input, $key, $filename_safe = TRUE) {
+    private static function encrypt($input, $key) {
         srand((double) microtime() * 1000000); //for MCRYPT_RAND
 
-        $size = mcrypt_get_block_size(MCRYPT_RIJNDAEL_256, MCRYPT_MODE_CBC);
+        $size = mcrypt_get_block_size(MCRYPT_RIJNDAEL_128, MCRYPT_MODE_CBC);
         $input = ImageServiceClient::pkcs5_pad($input, $size);
 
-        $td = mcrypt_module_open(MCRYPT_RIJNDAEL_256, '', MCRYPT_MODE_CBC, '');
+        $td = mcrypt_module_open(MCRYPT_RIJNDAEL_128, '', MCRYPT_MODE_CBC, '');
         $iv = mcrypt_create_iv(mcrypt_enc_get_iv_size($td), MCRYPT_RAND);
 
         mcrypt_generic_init($td, $key, $iv);
@@ -37,11 +37,7 @@ class ImageServiceClient {
 
         $base64Data = base64_encode($iv.$data);
 
-        if ($filename_safe){
-            return rtrim(strtr($base64Data, '+/', '-_'), '=');
-        } else {
-            return $base64Data;
-        }
+        return rtrim(strtr($base64Data, '+/', '-_'), '=');
     }
 
     private static function pkcs5_pad ($text, $blocksize) {
