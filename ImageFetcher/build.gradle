@@ -2,6 +2,9 @@ apply plugin: "groovy"
 apply plugin: "application"
 mainClassName = 'edu.usf.cims.idcard.ImageFetcher.ImageFetchTool'
 
+sourceCompatibility = 1.6
+version = '1.0.1'
+
 repositories {
     mavenCentral()
 }
