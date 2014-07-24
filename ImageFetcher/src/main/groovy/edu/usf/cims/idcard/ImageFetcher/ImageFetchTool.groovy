@@ -61,7 +61,7 @@ class ImageFetchTool {
           log.debug "${image.path} => ${newFileLocation}"
           BufferedImage thumbnail = Scalr.resize(imageData, Scalr.Method.SPEED, Scalr.Mode.FIT_TO_HEIGHT, 200, 200)
           def cropX = thumbnail.getWidth() / 2 as int
-          thumbnail = Scalr.pad(thumbnail, 100)
+          thumbnail = Scalr.pad(thumbnail, 100, java.awt.Color.WHITE)
           thumbnail = Scalr.crop(thumbnail,cropX,100,200,200)
           ImageIO.write(thumbnail, 'JPEG', new File(newFileLocation))
           thumbnail.flush()
