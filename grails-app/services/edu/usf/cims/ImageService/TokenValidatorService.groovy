@@ -23,7 +23,7 @@ class TokenValidatorService {
 
         switch (serviceData.tokenScheme) {
             // AES256 encrypted token
-            case "AES":
+            case 'AES':
                 try {
                     plaintext = Security.AESdecrypt(token, serviceData.key)
                 } catch(Exception e) {

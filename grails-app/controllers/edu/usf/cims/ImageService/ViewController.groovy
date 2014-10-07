@@ -66,13 +66,19 @@ class ViewController {
             return
         }
 
-        def token = params.requestFile.replaceAll(/(\.jpg|\.JPG)$/,"")
+        def token = params.requestFile.replaceAll(/(\.jpg|\.JPG)$/,"").trim()
 
         def result = tokenValidatorService.validateToken(params.serviceName, token)
 
         def imageData = imageLocatorService.locate(params.serviceName, result)
 
-        log.error("RESIZE|${request.getRemoteAddr()}|${params.serviceName}|${token}|${result.result}|${result.message}|${imageData.type}|${params.width}|${params.height}")
+        def logMessage = "RESIZE|${request.getRemoteAddr()}|${params.serviceName}|${token}|${result.result}|${result.message}|${imageData.type}|${params.width}|${params.height}")
+
+        if (result.result == 'error'){
+            log.error(logMessage)
+        } else {
+            log.info(logMessage)
+        }
 
         //Read image from file
         BufferedImage orig = ImageIO.read(imageData.file)
