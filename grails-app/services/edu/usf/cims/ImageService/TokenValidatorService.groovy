@@ -21,7 +21,7 @@ class TokenValidatorService {
             return results
         }
 
-        switch (serviceData.tokenScheme) {
+        switch (serviceData.tokenAlg) {
             // AES256 encrypted token
             case 'AES':
                 try {
@@ -54,8 +54,32 @@ class TokenValidatorService {
                 }
                 break
 
+            // Message digest hashed value
+            case 'MD5':
+            case 'SHA-1':
+            case 'SHA-256':
+            case 'SHA-384':
+            case 'SHA-512':
+                // Split the Unumber from the hash.
+                def tokenData = token.tokenize(serviceData.separator)
+
+                // Generate a hash for the key/unumber combination
+                def myHash = Security.digest("${serviceData.key}${tokenData[0]}", serviceData.tokenAlg, serviceData.encoding)
+
+                // Compare the given hash with the one we just generated
+                if (myHash == tokenData[1]){
+                    results = [result: 'success', message: tokenData[0]]
+                } else {
+                    results = [result: 'error', message: "Token hash ${tokenData[1]} not valid for ${tokenData[0]}.  Expected ${myHash} ${serviceData.key}${tokenData[0]}"]
+                }
+                break
+
             // HMAC Hashed value
-            default:
+            case 'HmacMD5':
+            case 'HmacSHA1':
+            case 'HmacSHA256':
+            case 'HmacSHA384':
+            case 'HmacSHA512':
                 // Split the Unumber from the hash.
                 def tokenData = token.tokenize(serviceData.separator)
 
@@ -69,6 +93,10 @@ class TokenValidatorService {
                     results = [result: 'error', message: "Token hash ${tokenData[1]} not valid for ${tokenData[0]}.  Expected ${myHash}"]
                 }
                 break
+
+            default:
+                results = [result: 'error', message: "Token validation failed.  Invalid algorithm specified"]
+                return results
         }
         return results
     }

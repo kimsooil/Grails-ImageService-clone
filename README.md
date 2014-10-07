@@ -9,9 +9,16 @@ We had a few requirements when developing this service:
 * Authenticate each service/request by using an authentication token
 * Support multiple algorithms for generating an authentication token:
  * AES256
+ * MD5
  * MD5-HMAC
+ * SHA1
  * SHA1-HMAC
+ * SHA256
  * SHA256-HMAC
+ * SHA384
+ * SHA384-HMAC
+ * SHA512
+ * SHA512-HMAC
 
 ---
 
@@ -21,17 +28,19 @@ To request an image, you need three pieces of data: the *__image identifier__*, 
 
 The image identifer is an alpha-numeric string (student/employee id, image number, etc) that will be used to request the image.  Each of the images in the photo repository should be named in the format *{identier}.jpg*  
 
-When a new application is authorized to request images from this service, they are given a short, human-readable identifer.  Think of this identifier as the "username" for the application accessing the image service.  This value is public and will be used in the URL of the image request.  
+When a new application is authorized to request images from this service, they are given a short, human-readable identifier.  Think of this identifier as the "username" for the application accessing the image service.  This value is public and will be used in the URL of the image request.  
 
-The application key is a 32-character key which is used to encrypt the request (AES) or generate a Hash (MD5/SHA).  This is the applcation's password and must be guarded carefully!
+The application key is a 32-character key which is used to encrypt the request (AES) or generate a Hash (MD5/SHA).  This is the application's password and must be guarded carefully!
 
 
-##MD5/SHA1/SHA256
+##MD5/SHA
 
 ###Step 1: Generate the image filename
-We've implemented multiple hashing algorithims to make integration easier, but are all very similar and you can pick the one that works best with your application's language.  The basic premise of using a hashing algorithm for authentication takes the identifier for an image (student number in out case) combines it with the application key and generates a "hash".  The filename of the image is constructed of the identifer and this hash (`U12345678-a9c74a2e556df234c270035883501be7ac925b2f.jpg`).  On the server end, we generate a hash using the same input values and if the hashes match, the image is returned.
+We've implemented multiple hashing algorithims to make integration easier, but are all very similar and you can pick the one that works best with your application's language.  The basic premise of using a hashing algorithm for authentication takes the identifier for an image (student number in our case) combines it with the application key and generates a "hash".  The filename of the image is constructed of the identifier and this hash (`U12345678-a9c74a2e556df234c270035883501be7ac925b2f.jpg`).  On the server end, we generate a hash using the same input values and if the hashes match, the image is returned.
 
-From a security standpoint SHA256 is considered the most secure and would be the preferred out of the three, but it is also the slowest and creates the longest hash values.  Therefore, you'll need to decide if that level of security is needed or if you can trade a bit of security for efficency.
+When generating the hash, HMAC algorithms take two inputs: application key and identifier, while the non-HMAC algorithms accept a single input.  When using a non-HMAC hashing algorithm, the application key and the identifier should be concatenated together into a single string which will be the input to the hashing algorithm.
+
+From a security standpoint SHA512-HMAC is considered the most secure and would be the preferred out of all the choices, but it is also the slowest and creates the longest hash values.  Therefore, you'll need to decide if that level of security is needed or if you can trade a bit of security for efficiency.
 
 ####Pros
 * Very simple to implement
@@ -46,11 +55,21 @@ From a security standpoint SHA256 is considered the most secure and would be the
 <?php
 
 $identifier = 'U12345678';
+$application_key = 'bfTkmK8CxKAQMABJ5Wg1xmqycvvxkdLa';
 
-$hash = hash_hmac('sha1', $identifier, 'bfTkmK8CxKAQMABJ5Wg1xmqycvvxkdLa');
+// Using SHA1-HMAC
+$hash = hash_hmac('sha1', $identifier, $application_key);
 
 // Outputs U12345678_61eca870a86cd0d8238c853c80ef5280d4c01640.jpg
-echo $identifier."_".$hash."jpg";
+echo $identifier."_".$hash.".jpg\n";
+
+//Using SHA1
+$input_string = $application_key.$identifier;
+$hash = sha1($input_string);
+
+// Outputs U12345678_6715af5e3be5b52b6c6da25d5d238fdcd1c2a9a1.jpg
+echo $identifier."_".$hash.".jpg\n";
+
 ?>
 ```
 
@@ -80,9 +99,9 @@ The other process for generating the image filename uses the AES256 encryption a
 AES256(key:"AfoaKlDM4AjVyjo38f0NOs4O6hXM1T32", plaintext:"1403793319|U12345678") = DiHfS3Baw8xYjlXklYr0ciiaUB7uv1S4ZukImmNMnsJ4DPDMTW5niNch30ORmg9R7YfyjGi1Bi44gBp87517Eg
 ```
 
-From this point on, the process of generating a request URL is the same as with the hashing algorithms.  To verify the filename, the server decrypts the value.  If it resluting plaintext is in the correct format, the timestamp is then compared to the server's clock.  If it is more than a certain number of seconds old (30 by default), the request is rejected.  If the request is recent enough, the image is returned.
+From this point on, the process of generating a request URL is the same as with the hashing algorithms.  To verify the filename, the server decrypts the value.  If it resulting plaintext is in the correct format, the timestamp is then compared to the server's clock.  If it is more than a certain number of seconds old (30 by default), the request is rejected.  If the request is recent enough, the image is returned.
 
-Dealing with encryption, especially between programming languages, can be quit difficult.  To make implementaion easier, I have included clients in the __clients__ for Java, PHP and C# as examples.  AES encryption is the most secure method for accessing images and is preferred if you are developing a new application that requires images.
+Dealing with encryption, especially between programming languages, can be quit difficult.  To make implementation easier, I have included clients in the __clients__ for Java, PHP and C# as examples.  AES encryption is the most secure method for accessing images and is preferred if you are developing a new application that requires images.
 
 ####Pros
 * The image identifier is protected and not visible to the client browser.

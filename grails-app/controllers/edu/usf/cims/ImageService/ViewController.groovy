@@ -72,7 +72,7 @@ class ViewController {
 
         def imageData = imageLocatorService.locate(params.serviceName, result)
 
-        def logMessage = "RESIZE|${request.getRemoteAddr()}|${params.serviceName}|${token}|${result.result}|${result.message}|${imageData.type}|${params.width}|${params.height}")
+        def logMessage = "RESIZE|${request.getRemoteAddr()}|${params.serviceName}|${token}|${result.result}|${result.message}|${imageData.type}|${params.width}|${params.height}"
 
         if (result.result == 'error'){
             log.error(logMessage)

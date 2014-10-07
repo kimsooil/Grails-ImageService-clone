@@ -15,6 +15,7 @@ import java.io.UnsupportedEncodingException;
 import org.apache.commons.codec.binary.Base64;
 import java.security.SecureRandom;
 import javax.crypto.Mac;
+import java.security.MessageDigest;
 
 public class Security {
 
@@ -66,6 +67,29 @@ public class Security {
         System.out.println(e.toString());
       }
       return new String(output);
+  }
+
+  public static String digest(String msg, String algo, String encoding) {
+    String digest = null;
+    try {
+        MessageDigest crypt = MessageDigest.getInstance(algo);
+        crypt.reset();
+        crypt.update(msg.getBytes(encoding));
+        byte[] bytes = crypt.digest();
+
+        StringBuffer hash = new StringBuffer();
+        for (int i = 0; i < bytes.length; i++) {
+            String hex = Integer.toHexString(0xFF & bytes[i]);
+            if (hex.length() == 1) {
+                hash.append('0');
+            }
+            hash.append(hex);
+        }
+        digest = hash.toString();
+    } catch (Exception e){
+        System.out.println(e.toString());
+    }
+    return digest;
   }
 
   public static String HMACdigest(String msg, String keyString, String algo, String encoding) {
