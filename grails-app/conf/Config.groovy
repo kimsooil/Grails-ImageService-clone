@@ -113,7 +113,7 @@ environments {
     development {
         services = [
             test : [tokenAlg: 'AES', privacy: false, separator: '|', encoding: 'ASCII', key:'AfoaKlDM4AjVyjo38f0NOs4O6hXM1T32'],
-            test2: [tokenAlg: 'HmacMD5', privacy: true, separator: '_', encoding: 'ASCII', key:'8fKqPyfAah56cRXM0Qafkom10zn7Upw2'],
+            test2: [tokenAlg: 'SHA-1', privacy: true, separator: '_', encoding: 'ASCII', key:'8fKqPyfAah56cRXM0Qafkom10zn7Upw2'],
             test3: [tokenAlg: 'HmacSHA1', privacy: true, separator: '-', encoding: 'UTF-8', key:'YR9LgYIGO3psi7vW62DTHFeh9Vc5lZpO'],
             test4: [tokenAlg: 'HmacSHA256', privacy: false, separator: '|', encoding: 'UTF-8', key:'6JGeveYG70dhuYXWF7JGWzzG84P4BRgn']
         ]
