@@ -63,14 +63,17 @@ class TokenValidatorService {
                 // Split the Unumber from the hash.
                 def tokenData = token.tokenize(serviceData.separator)
 
+                def tokenFormat = serviceData.tokenFormat ?: '%1$s%2$s'
+                def tokenText = String.format(tokenFormat, tokenData[0], serviceData.key)
+
                 // Generate a hash for the key/unumber combination
-                def myHash = Security.digest("${serviceData.key}${tokenData[0]}", serviceData.tokenAlg, serviceData.encoding)
+                def myHash = Security.digest(tokenText, serviceData.tokenAlg, serviceData.encoding)
 
                 // Compare the given hash with the one we just generated
                 if (myHash == tokenData[1]){
                     results = [result: 'success', message: tokenData[0]]
                 } else {
-                    results = [result: 'error', message: "Token hash ${tokenData[1]} not valid for ${tokenData[0]}.  Expected ${myHash} ${serviceData.key}${tokenData[0]}"]
+                    results = [result: 'error', message: "Token hash ${tokenData[1]} not valid for ${tokenData[0]}.  Expected ${myHash}"]
                 }
                 break
 
