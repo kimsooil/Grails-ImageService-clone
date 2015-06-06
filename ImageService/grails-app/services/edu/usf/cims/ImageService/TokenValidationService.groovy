@@ -1,8 +1,8 @@
 package edu.usf.cims.ImageService
 
 import edu.usf.cims.Security
-import groovy.time.*
-import grails.core.*
+import groovy.time.TimeCategory
+import grails.core.GrailsApplication
 
 class TokenValidatorService {
     GrailsApplication grailsApplication

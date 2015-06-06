@@ -1,8 +1,9 @@
 package edu.usf.cims.ImageService
 
+import grails.core.GrailsApplication
 
 class ImageLocatorService {
-    def grailsApplication
+    GrailsApplication grailsApplication
 
     static transactional = false
 
@@ -17,7 +18,7 @@ class ImageLocatorService {
                 return [type: "public_image", file: imageFile]
             } else {
                 //No image found.  Can the service see images with privacy set?
-                if (grailsApplication.config.services[serviceName].privacy) {
+                if (grailsApplication.config.image_service.services[serviceName].privacy) {
                     imageFile = new File("${grailsApplication.config.image_service.privateImageDir}/${tokenResult.message}.jpg")
                     if(imageFile.exists() ) {
                         log.debug("Returned private image for [${tokenResult.message}] Service [${serviceName}]")
