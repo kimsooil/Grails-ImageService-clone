@@ -69,57 +69,17 @@ grails:
                 staticparts: none
 
 ---
-dataSource:
-    pooled: true
-    jmxExport: true
-    driverClassName: org.h2.Driver
-    username: sa
-    password:
-
-environments:
-    development:
-        dataSource:
-            dbCreate: create-drop
-            url: jdbc:h2:mem:devDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE
-    test:
-        dataSource:
-            dbCreate: update
-            url: jdbc:h2:mem:testDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE
-    production:
-        dataSource:
-            dbCreate: update
-            url: jdbc:h2:prodDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE
-            properties:
-                jmxEnabled: true
-                initialSize: 5
-                maxActive: 50
-                minIdle: 5
-                maxIdle: 25
-                maxWait: 10000
-                maxAge: 600000
-                timeBetweenEvictionRunsMillis: 5000
-                minEvictableIdleTimeMillis: 60000
-                validationQuery: SELECT 1
-                validationQueryTimeout: 3
-                validationInterval: 15000
-                testOnBorrow: true
-                testWhileIdle: true
-                testOnReturn: false
-                jdbcInterceptors: ConnectionState
-                defaultTransactionIsolation: 2 # TRANSACTION_READ_COMMITTED
----
-
 image_service:
     maxImageWidth: 400
     maxImageHeight: 600
     minImageWidth: 10
     minImageHeight: 20
 
-    maxTimeDrift: 30 //in seconds
+    maxTimeDrift: 30 #in seconds
 
-    defaultImage: /Users/epierce/src/github/ImageService/files/rocky.jpg
-    normalImageDir: /tmp/images
-    privateImageDir: /tmp/images-priv
+    defaultImage: grails-app/assets/images/rocky.jpg
+    normalImageDir: grails-app/assets/images
+    privateImageDir: grails-app/assets/images/private
 
     #Keys to decrypt tokens with
     services:

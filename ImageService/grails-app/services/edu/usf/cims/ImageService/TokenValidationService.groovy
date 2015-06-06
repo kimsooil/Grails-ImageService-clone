@@ -2,22 +2,23 @@ package edu.usf.cims.ImageService
 
 import edu.usf.cims.Security
 import groovy.time.*
+import grails.core.*
 
 class TokenValidatorService {
-    def grailsApplication
+    GrailsApplication grailsApplication
 
     static transactional = false
 
-    def validateToken(String serviceName, String token){
+    def validateToken(String serviceName, String token) {
 
-        def results = [results:"", message: ""]
+        def results = [result:"", message: ""]
 
         def serviceData = grailsApplication.config.image_service.services[serviceName] ?: ''
         def plaintext = ''
 
         // Make sure the service passed is allowed to use this service
         if (serviceData == '') {
-            results = [results: 'error', message: 'Invalid service']
+            results = [result: 'error', message: 'Invalid service']
             return results
         }
 
@@ -33,7 +34,7 @@ class TokenValidatorService {
 
                 // All decrypted tokens should be in this format: unixtime${serviceData.separator}U########
                 if (! (plaintext ==~ /\d{10,13}.U\d{8}.*/)) {
-                    results = [result: 'error', message: "Token decryption failed or incorrect token format. Result was: ${plaintext.encodeAsBase64()}"]
+                    results = [result: 'error', message: "Token decryption failed or incorrect token format. Result was: ${plaintext}"]
                     return results
                 }
 
