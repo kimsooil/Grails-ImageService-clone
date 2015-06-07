@@ -85,7 +85,7 @@ image_service:
     services:
         test:
             tokenAlg: AES
-            privacy: false
+            privacy: true
             separator: '|'
             encoding: ASCII
             key: AfoaKlDM4AjVyjo38f0NOs4O6hXM1T32

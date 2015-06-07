@@ -45,7 +45,7 @@ public class Security {
       }catch(Exception e){
           System.out.println(e.toString());
       }
-      return new String(Base64.encodeBase64(crypted));
+      return new String(Base64.encodeBase64URLSafeString(crypted));
   }
 
   public static String AESdecrypt(String input, String key){

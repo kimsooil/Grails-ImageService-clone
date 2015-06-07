@@ -1,5 +1,6 @@
 package edu.usf.cims.ImageService
 
+import java.nio.file.Files
 import java.awt.image.BufferedImage
 import javax.imageio.ImageIO
 import org.imgscalr.Scalr
@@ -34,9 +35,8 @@ class ViewController {
         }
 
         // Read image from file
-        def BufferedImage i = ImageIO.read(imageData.file)
         response.contentType = "image/jpeg"
-        ImageIO.write(i, "jpg", response.outputStream)
+        response.outputStream << Files.readAllBytes(imageData.file.toPath())
         return
     }
 
