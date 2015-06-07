@@ -2,19 +2,17 @@ package edu.usf.cims.idcard.ImageFetcher
 
 import groovy.sql.Sql
 import groovy.io.FileType
-
 import groovy.util.logging.Slf4j
-
 import groovy.util.CliBuilder
 import org.apache.commons.cli.Option
-
 import java.awt.image.BufferedImage
 import javax.imageio.ImageIO
-
 import org.imgscalr.Scalr
-
 import org.imgscalr.Scalr.*
 
+/**
+* ImageFetchTool
+**/
 @Slf4j
 class ImageFetchTool {
 
@@ -34,6 +32,7 @@ class ImageFetchTool {
       def date = new Date().format('yyyyMMdd') as String
       if (opt.date) date = opt.date
 
+      // SQL queries for the IDCD schema on diamond
       def selectStatementAllActive = "SELECT ID_PERSON, ID_IMAGE_FILE_NAME FROM idcard.id WHERE id.ID_ACTIVE_CODE='A' AND ID_PERSON LIKE 'U%' AND ID_IMAGE_FILE_NAME IS NOT NULL" as String
       def selectStatementSingleDay = "SELECT ID_PERSON, ID_IMAGE_FILE_NAME FROM idcard.id WHERE id.ID_ACTIVE_CODE='A' AND ID_PERSON LIKE 'U%' AND ID_IMAGE_FILE_NAME LIKE '${date}%'" as String
 
@@ -56,11 +55,14 @@ class ImageFetchTool {
         def newFileLocation = "${config.newBaseDir}/${identifier}.jpg"
         def image = new File(origFileLocation)
 
+        // Create a 200x200 copy of the image
         if(image.canRead()) {
           BufferedImage imageData = ImageIO.read(image)
           log.debug "${image.path} => ${newFileLocation}"
           BufferedImage thumbnail = Scalr.resize(imageData, Scalr.Method.SPEED, Scalr.Mode.FIT_TO_HEIGHT, 200, 200)
           def cropX = thumbnail.getWidth() / 2 as int
+
+          // Add a white matte around the image so that we can crop it square and not lose any of the image
           thumbnail = Scalr.pad(thumbnail, 100, java.awt.Color.WHITE)
           thumbnail = Scalr.crop(thumbnail,cropX,100,200,200)
           ImageIO.write(thumbnail, 'JPEG', new File(newFileLocation))
@@ -75,7 +77,7 @@ class ImageFetchTool {
       def privateDir = new File(config.privateDir)
       def publicDir = new File(config.newBaseDir)
 
-      // Get the list of files who need to be in the private directory.
+      // Get the list of files that should be in the private directory using the NAMS database.
       def selectPrivacySet = "SELECT o.usfid FROM names n JOIN oasis o ON n.badge = o.badge WHERE n.privacy != 0" as String
       def privacyDataSQL = Sql.newInstance(config.privacyData.connector, config.privacyData.user, config.privacyData.password, config.privacyData.driver )
 
@@ -131,9 +133,9 @@ class ImageFetchTool {
             width:100)
     cli.with {
       h longOpt:'help', 'usage information', required: false
-      a longOpt:'all', 'process all card images', required: false
-      d longOpt:'date', args:1, argName:'date', 'date (format: yyyyMMdd) to process images for', required: false
-      c longOpt:'config', args:1, argName:'configFileName', 'groovy config file', required: false
+      _ longOpt:'all', 'process all card images', required: false
+      _ longOpt:'date', args:1, argName:'date', "date (format: yyyyMMdd) to process images for.  Default: ${new Date().format('yyyyMMdd')}", required: false
+      _ longOpt:'config', args:1, argName:'configFileName', 'groovy config file **REQUIRED**', required: true
     }
 
     def options = cli.parse(args)
