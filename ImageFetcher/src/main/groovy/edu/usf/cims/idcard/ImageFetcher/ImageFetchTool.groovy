@@ -138,7 +138,8 @@ class ImageFetchTool {
 
     def options = cli.parse(args)
 
-    // Display usage if --help is given
+    if(! options) System.exit(1)
+
     if(options.help) {
       cli.usage()
       System.exit(0)
@@ -151,27 +152,15 @@ class ImageFetchTool {
     def config = new ConfigObject()
 
     // Directory that contains the originals
-    config.origBaseDir = '/Volumes/photos/USF'
+    config.origBaseDir = ''
     // Directory to store the modified images
-    config.newBaseDir = '/Users/epierce/tmp/thumbs'
+    config.newBaseDir = ''
     // Where to store the images of people with privacy set
     config.privateDir = "${config.newBaseDir}/private"
 
-    /** Defaut configuration values can be set in $HOME/.ImageFetchTool.groovy **/
-    def defaultConfigFile = new File(System.getProperty("user.home")+'/.ImageFetchTool.groovy')
-
-    // The default config file is not required, so if it doesn't exist don't throw an exception
-    if (defaultConfigFile.exists() && defaultConfigFile.canRead()) {
-      config = config.merge(new ConfigSlurper().parse(defaultConfigFile.toURL()))
-    }
-
-    //Merge the config file that was passed on the commandline
-    if(options.config){
-      def newConfigFile = new File(options.config)
-      config = config.merge(new ConfigSlurper().parse(newConfigFile.toURL()))
-    }
-
-    return config
+    // Merge the config file that was passed on the commandline
+    def newConfigFile = new File(options.config)
+    config.merge(new ConfigSlurper().parse(newConfigFile.toURL()))
   }
 
   private static exitOnError(errorString){
