@@ -1,0 +1,12 @@
+/**
+ *  Sample config file for ImageFetcher
+ **/
+
+// Directory that contains the original card images
+config.origBaseDir = '/mnt/id_card/images'
+
+// Directory to store the modified images in
+config.newBaseDir = '/opt/share/images'
+
+// Where to store the images of people with privacy set
+config.privateDir = "${config.newBaseDir}/private"

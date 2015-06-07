@@ -128,7 +128,7 @@ public class ImageServiceClient {
             System.out.println(e.toString());
         }
 
-        return new String(Base64.encodeBase64(output, true, true));
+        return new String(Base64.encodeBase64URLSafe(output, true, true));
 
     }
 }
