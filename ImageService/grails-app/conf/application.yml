@@ -1,0 +1,109 @@
+---
+grails:
+    profile: web
+    codegen:
+        defaultPackage: edu.usf.cims.ImageService
+info:
+    app:
+        name: '@info.app.name@'
+        version: '@info.app.version@'
+        grailsVersion: '@info.app.grailsVersion@'
+spring:
+    groovy:
+        template:
+            check-template-location: false
+
+---
+grails:
+    mime:
+        disable:
+            accept:
+                header:
+                    userAgents:
+                        - Gecko
+                        - WebKit
+                        - Presto
+                        - Trident
+        types:
+            all: '*/*'
+            atom: application/atom+xml
+            css: text/css
+            csv: text/csv
+            form: application/x-www-form-urlencoded
+            html:
+              - text/html
+              - application/xhtml+xml
+            js: text/javascript
+            json:
+              - application/json
+              - text/json
+            multipartForm: multipart/form-data
+            rss: application/rss+xml
+            text: text/plain
+            hal:
+              - application/hal+json
+              - application/hal+xml
+            xml:
+              - text/xml
+              - application/xml
+    urlmapping:
+        cache:
+            maxsize: 1000
+    controllers:
+        defaultScope: singleton
+    converters:
+        encoding: UTF-8
+    hibernate:
+        cache:
+            queries: false
+    views:
+        default:
+            codec: html
+        gsp:
+            encoding: UTF-8
+            htmlcodec: xml
+            codecs:
+                expression: html
+                scriptlets: html
+                taglib: none
+                staticparts: none
+
+---
+image_service:
+    maxImageWidth: 400
+    maxImageHeight: 600
+    minImageWidth: 10
+    minImageHeight: 20
+
+    maxTimeDrift: 30 #in seconds
+
+    defaultImage: grails-app/assets/images/rocky.jpg
+    normalImageDir: grails-app/assets/images
+    privateImageDir: grails-app/assets/images/private
+
+    #Keys to decrypt tokens with
+    services:
+        test:
+            tokenAlg: AES
+            privacy: true
+            separator: '|'
+            encoding: ASCII
+            key: AfoaKlDM4AjVyjo38f0NOs4O6hXM1T32
+        test2:
+            tokenAlg: SHA-1
+            privacy: true
+            separator: '-'
+            encoding: ASCII
+            key: 8fKqPyfAah56cRXM0Qafkom10zn7Upw2
+        test3:
+            tokenAlg: HmacSHA1
+            privacy: true
+            separator: '_'
+            encoding: UTF-8
+            key: bfTkmK8CxKAQMABJ5Wg1xmqycvvxkdLa
+        test4:
+            tokenAlg: HmacSHA256
+            privacy: false
+            separator: '|'
+            encoding: UTF-8
+            key: 6JGeveYG70dhuYXWF7JGWzzG84P4BRgn

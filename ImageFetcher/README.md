@@ -1,24 +1,6 @@
-Groovy Application project template
+ImageFetcher
 ------------------------------------
 
-You have just created a basic Groovy application. There is a standard project
-structure for source code and tests.
-
-In this project you get:
-
-* A Gradle build file
-* A standard project structure:
-
-    <proj>
-      |
-      +- src
-          |
-          +- main
-          |     |
-          |     +- groovy
-          |
-          +- test
-          |   |
-          |   +- groovy
-
-          |
+A Groovy application to copy the card images from the IDCARD server, resize them
+to a standard size (200x200) and place them in to public/private directories for
+use by ImageService.

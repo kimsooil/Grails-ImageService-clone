@@ -3,7 +3,7 @@ apply plugin: 'groovy'
 
 group = 'edu.usf.cims'
 sourceCompatibility = 1.6
-version = '1.1.0'
+version = '1.1.1'
 
 
 repositories {
