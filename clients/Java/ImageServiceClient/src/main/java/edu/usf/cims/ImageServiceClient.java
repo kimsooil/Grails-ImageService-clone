@@ -23,7 +23,8 @@ public class ImageServiceClient {
     public static URI getImageUrl(String imageServiceScheme, String imageServiceHost, int imageServicePort, String imageServicePath,
                                     char separator, String serviceName, String serviceKey, String identifier){
 
-        String unixtime = String.valueOf(System.currentTimeMillis() / 1000L);
+        int time = (int) (System.currentTimeMillis() / 1000L);
+        String unixtime = String.valueOf(time);
         String plaintext = unixtime + separator + identifier;
 
         String encryptedToken = ImageServiceClient.AESencrypt(plaintext, serviceKey);
@@ -128,7 +129,7 @@ public class ImageServiceClient {
             System.out.println(e.toString());
         }
 
-        return new String(Base64.encodeBase64URLSafe(output, true, true));
+        return new String(Base64.encodeBase64URLSafe(output));
 
     }
 }
