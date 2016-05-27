@@ -154,7 +154,7 @@ namespace ImageService_Client
 			Array.Copy(iv, 0, finalOutput, 0, iv.Length);
 			Array.Copy(encryptedData, 0, finalOutput, iv.Length, encryptedData.Length);
 
-			return System.Convert.ToBase64String(finalOutput).Replace("+", "_").Replace("/", "-").Replace("=","");
+			return System.Convert.ToBase64String(finalOutput).Replace("+", "-").Replace("/", "_").Replace("=","");
 
 		}
 	}
