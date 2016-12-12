@@ -19,7 +19,10 @@ node {
   stage('Get Ansible Roles') {
     sh 'ansible-galaxy install -r ansible/requirements.yml -p ansible/roles/ -f'
   }
-  stage('Build ImageFetcher and ImageService') {
-    sh "ansible-playbook -i 'localhost,' -c local --vault-password-file=${env.USF_ANSIBLE_VAULT_KEY} ansible/playbook.yml"
+  stage('Build ImageFetcher') {
+    sh "ansible-playbook -i 'localhost,' -c local --vault-password-file=${env.USF_ANSIBLE_VAULT_KEY} ansible/playbook.yml -t ImageFetcher"
+  }
+  stage('Build ImageService') {
+    sh "ansible-playbook -i 'localhost,' -c local --vault-password-file=${env.USF_ANSIBLE_VAULT_KEY} ansible/playbook.yml -t ImageService"
   }
 }
