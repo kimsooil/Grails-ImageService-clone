@@ -4,25 +4,15 @@ node {
   env.GRAILS_HOME = tool 'grails3.0.2'
   env.PATH = "${env.GRADLE_HOME}/bin:${env.GRAILS_HOME}/bin:${env.PATH}"
   checkout scm
-  stage('Build ImageFetcher') {
-    dir('ImageFetcher') {
-      sh 'gradle distZip'
-      archiveArtifacts artifacts: 'build/distributions/ImageFetcher*.zip'
-    }
-  }
-  stage('Build ImageService') {
-    dir('ImageService') {
-      sh './gradlew distZip'
-      archiveArtifacts artifacts: 'build/distributions/ImageService*.zip'
-    }
-  }
   stage('Get Ansible Roles') {
     sh 'ansible-galaxy install -r ansible/requirements.yml -p ansible/roles/ -f'
   }
   stage('Build ImageFetcher') {
     sh "ansible-playbook -i 'localhost,' -c local --vault-password-file=${env.USF_ANSIBLE_VAULT_KEY} ansible/playbook.yml -t ImageFetcher"
+    archiveArtifacts artifacts: 'build/distributions/ImageFetcher*.rpm'
   }
   stage('Build ImageService') {
     sh "ansible-playbook -i 'localhost,' -c local --vault-password-file=${env.USF_ANSIBLE_VAULT_KEY} ansible/playbook.yml -t ImageService"
+    archiveArtifacts artifacts: 'build/distributions/ImageService*.rpm'
   }
 }
