@@ -7,6 +7,7 @@ node {
   stage('Build ImageFetcher') {
     dir('ImageFetcher') {
       sh 'gradle distZip'
+      archiveArtifacts artifacts: 'build/distributions/ImageFetcher*.zip'
     }
   }
 }
