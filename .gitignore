@@ -11,3 +11,5 @@ gradle-app.setting
 !gradle-wrapper.jar
 
 .DS_Store
+/clients/Java/ImageServiceClient/.nb-gradle/
+/ImageFetcher/.nb-gradle/

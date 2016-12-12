@@ -33,9 +33,12 @@ class ImageFetchTool {
       if (opt.date) date = opt.date
 
       // SQL queries for the IDCD schema on diamond
-      def selectStatementAllActive = "SELECT ID_PERSON, ID_IMAGE_FILE_NAME FROM idcard.id WHERE id.ID_ACTIVE_CODE='A' AND ID_PERSON LIKE 'U%' AND ID_IMAGE_FILE_NAME IS NOT NULL" as String
-      def selectStatementSingleDay = "SELECT ID_PERSON, ID_IMAGE_FILE_NAME FROM idcard.id WHERE id.ID_ACTIVE_CODE='A' AND ID_PERSON LIKE 'U%' AND ID_IMAGE_FILE_NAME LIKE '${date}%'" as String
+      // def selectStatementAllActive = "SELECT ID_PERSON, ID_IMAGE_FILE_NAME FROM idcard.id WHERE id.ID_ACTIVE_CODE='A' AND ID_PERSON LIKE 'U%' AND ID_IMAGE_FILE_NAME IS NOT NULL" as String
+      // def selectStatementSingleDay = "SELECT ID_PERSON, ID_IMAGE_FILE_NAME FROM idcard.id WHERE id.ID_ACTIVE_CODE='A' AND ID_PERSON LIKE 'U%' AND ID_IMAGE_FILE_NAME LIKE '${date}%'" as String
 
+      def selectStatementAllActive = "SELECT ID_PERSON, ID_IMAGE_FILE_NAME FROM idcard.id WHERE ID_IMAGE_FILE_NAME IS NOT NULL" as String
+      def selectStatementSingleDay = "SELECT ID_PERSON, ID_IMAGE_FILE_NAME FROM idcard.id WHERE ID_IMAGE_FILE_NAME LIKE '${date}%'" as String
+      // id.ID_ACTIVE_CODE='A' AND ID_PERSON LIKE 'U%'
       // Just select the cards created on a specific day unless the --all switch was used
       def activeStatement = selectStatementSingleDay
       if (opt.all) activeStatement = selectStatementAllActive
@@ -47,12 +50,12 @@ class ImageFetchTool {
 
       cardDataSQL.eachRow(activeStatement) { row ->
         def identifier = row.ID_PERSON
-        def path = row.ID_IMAGE_FILE_NAME.trim().tokenize('\\')
+        def path = row.ID_IMAGE_FILE_NAME.trim().minus('P:\\USF').tokenize('\\')
         def fileName = path.pop()
         def directory = path.pop()
 
         def origFileLocation = "${config.origBaseDir}/${directory}/${fileName}"
-        def newFileLocation = "${config.newBaseDir}/${identifier}.jpg"
+        def newFileLocation = row.ID_ACTIVE_CODE.equalsIgnoreCase( 'A' ) ? "${config.newBaseDir}/${identifier}.jpg" : "${config.newBaseInactiveDir}/${identifier}.jpg"
         def image = new File(origFileLocation)
 
         // Create a 200x200 copy of the image
