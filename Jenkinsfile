@@ -16,4 +16,7 @@ node {
       archiveArtifacts artifacts: 'build/distributions/ImageService*.zip'
     }
   }
+  stage('Get Ansible Roles') {
+    sh 'ansible-galaxy install -r ansible/requirements.yml -p ansible/roles/ -f'
+  }
 }
