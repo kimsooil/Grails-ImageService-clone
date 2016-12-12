@@ -10,4 +10,10 @@ node {
       archiveArtifacts artifacts: 'build/distributions/ImageFetcher*.zip'
     }
   }
+  stage('Build ImageServer') {
+    dir('ImageServer') {
+      sh '.gradle distZip'
+      archiveArtifacts artifacts: 'build/distributions/ImageService*.zip'
+    }
+  }
 }
