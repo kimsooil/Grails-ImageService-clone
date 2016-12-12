@@ -12,7 +12,7 @@ node {
   }
   stage('Build ImageServer') {
     dir('ImageServer') {
-      sh './gradlew distZip'
+      sh "bash -lc './gradlew distZip'"
       archiveArtifacts artifacts: 'build/distributions/ImageService*.zip'
     }
   }
