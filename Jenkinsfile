@@ -9,10 +9,10 @@ node {
   }
   stage('Build ImageFetcher') {
     sh "ansible-playbook -i 'localhost,' -c local --vault-password-file=${env.USF_ANSIBLE_VAULT_KEY} ansible/playbook.yml -t ImageFetcher"
-    archiveArtifacts artifacts: 'build/distributions/ImageFetcher*.rpm'
+    archiveArtifacts artifacts: 'ImageFetcher/build/distributions/ImageFetcher*.rpm'
   }
   stage('Build ImageService') {
     sh "ansible-playbook -i 'localhost,' -c local --vault-password-file=${env.USF_ANSIBLE_VAULT_KEY} ansible/playbook.yml -t ImageService"
-    archiveArtifacts artifacts: 'build/distributions/ImageService*.rpm'
+    archiveArtifacts artifacts: 'ImageService/build/distributions/ImageService*.rpm'
   }
 }
