@@ -55,7 +55,7 @@ class ImageFetchTool {
         def directory = path.pop()
 
         def origFileLocation = "${config.origBaseDir}/${directory}/${fileName}"
-        def newFileLocation = row.ID_ACTIVE_CODE.equalsIgnoreCase( 'A' ) ? "${config.newBaseDir}/${identifier}.jpg" : "${config.newBaseInactiveDir}/${identifier}.jpg"
+        def newFileLocation = row.ID_ACTIVE_CODE.equalsIgnoreCase( 'A' ) ? "${config.newBaseDir}/${identifier}.jpg" : "${config.inactiveDir}/${identifier}.jpg"
         def image = new File(origFileLocation)
 
         // Create a 200x200 copy of the image
@@ -79,6 +79,7 @@ class ImageFetchTool {
 
       def privateDir = new File(config.privateDir)
       def publicDir = new File(config.newBaseDir)
+      def inactiveDir = new File(config.inactiveDir)
 
       // Get the list of files that should be in the private directory using the NAMS database.
       def selectPrivacySet = "SELECT o.usfid FROM names n JOIN oasis o ON n.badge = o.badge WHERE n.privacy != 0" as String
