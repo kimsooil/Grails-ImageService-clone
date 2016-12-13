@@ -27,7 +27,8 @@ node('imageservice') {
     }
   }
   stage('Install Ansible') {
-    sh 'rpm -iUvh http://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-5.noarch.rpm'
+    // sh 'rpm -iUvh http://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-5.noarch.rpm'
+    sh 'rpm -Uvh http://download.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-8.noarch.rpm'
     sh 'yum -y update'
     sh 'yum -y install ansible'
   }
