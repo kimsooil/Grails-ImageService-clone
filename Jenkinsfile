@@ -20,18 +20,11 @@ node('master') {
 }
 node('imageservice') {
   stage('Unstash the rpms') {
-    sh 'ls -all'
+    sh 'rm -rf Image*'
     unstash 'imagefetcherrpm'
     unstash 'imageservicerpm'
-    // sh 'rm -rf Image*'
-    sh 'ls -all'
-  }
-}
-node('master') {
-  stage('Unstash and archive rpms') {
-    unstash 'imagefetcherrpm'
-    unstash 'imageservicerpm'
-    sh 'ls -all'
+
+
     archiveArtifacts artifacts: 'ImageFetcher/build/distributions/ImageFetcher*.rpm'
     archiveArtifacts artifacts: 'ImageService/build/distributions/ImageService*.rpm'
   }
