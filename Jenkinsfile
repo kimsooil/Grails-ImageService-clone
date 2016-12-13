@@ -16,7 +16,8 @@ node('master') {
     stash name: "imageservicerpm", includes: "ImageService/build/distributions/ImageService*.rpm"
   }
   stage('Stash the key') {
-    stash name: 'usfansiblevaultkey', includes: "${env.USF_ANSIBLE_VAULT_KEY}"
+    sh "cp ${env.USF_ANSIBLE_VAULT_KEY} ansible/key.txt"
+    stash name: 'usfansiblevaultkey', includes: "ansible/key.txt"
   }
 }
 node('imageservice') {
