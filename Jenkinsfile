@@ -36,6 +36,9 @@ node('imageservice') {
     sh 'mkdir -p /usr/local/etc/ansible/private'
     sh "mv ansible/key.txt ${env.USF_ANSIBLE_VAULT_KEY}"
   }
+  stage('Get Ansible Roles') {
+    sh 'ansible-galaxy install -r ansible/requirements.yml -p ansible/roles/ -f'
+  }
   stage('Deploy ImageFetcher and ImageService') {
     sh "ansible-playbook -i 'localhost,' -c local --vault-password-file=${env.USF_ANSIBLE_VAULT_KEY} ansible/playbook.yml --extra-vars 'java_home=${env.JAVA_HOME}' -t deploy"
   }
