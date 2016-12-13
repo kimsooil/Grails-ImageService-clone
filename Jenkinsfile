@@ -34,6 +34,7 @@ node('imageservice') {
     sh 'yum -y install ansible'
     dir('slave-ansible') {
       unstash 'usfansiblevaultkey'
+      sh 'ls -all'
       sh "mv ansible/key.txt ${env.USF_ANSIBLE_VAULT_KEY}"
     }
   }
