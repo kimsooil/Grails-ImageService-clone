@@ -22,5 +22,6 @@ node('imageservice') {
   stage('Unstash the rpms') {
     unstash 'imagefetcherrpm'
     unstash 'imageservicerpm'
+    sh 'ls -all'
   }
 }
