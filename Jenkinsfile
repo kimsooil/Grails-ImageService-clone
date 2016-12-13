@@ -23,6 +23,8 @@ node('imageservice') {
     unstash 'imagefetcherrpm'
     unstash 'imageservicerpm'
     sh 'ls -all'
+    sh 'rm -rf Image*'
+    sh 'ls -all'
   }
 }
 node('master') {
