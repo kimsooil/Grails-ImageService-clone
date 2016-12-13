@@ -25,6 +25,7 @@ node('master') {
 node('imageservice') {
   stage('Unstash the rpms') {
     sh 'rm -rf rpms'
+    unstash 'keystash'
     dir('rpms') {
       unstash 'imagefetcherrpm'
       unstash 'imageservicerpm'
