@@ -19,5 +19,8 @@ node('master') {
   }
 }
 node('imageservice') {
-  
+  stage('Unstash the rpms') {
+    unstash 'imagefetcherrpm'
+    unstash 'imageservicerpm'
+  }
 }
