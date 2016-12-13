@@ -20,10 +20,10 @@ node('master') {
 }
 node('imageservice') {
   stage('Unstash the rpms') {
+    sh 'ls -all'
     unstash 'imagefetcherrpm'
     unstash 'imageservicerpm'
-    sh 'ls -all'
-    sh 'rm -rf Image*'
+    // sh 'rm -rf Image*'
     sh 'ls -all'
   }
 }
