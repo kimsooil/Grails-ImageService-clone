@@ -9,13 +9,14 @@ node('master') {
   }
   stage('Build ImageFetcher') {
     sh "ansible-playbook -i 'localhost,' -c local --vault-password-file=${env.USF_ANSIBLE_VAULT_KEY} ansible/playbook.yml --extra-vars 'java_home=${env.JAVA_HOME}' -t ImageFetcher"
-    // archiveArtifacts artifacts: 'ImageFetcher/build/distributions/ImageFetcher*.rpm'
     stash name: "imagefetcherrpm", includes: "ImageFetcher/build/distributions/ImageFetcher*.rpm"
   }
   stage('Build ImageService') {
     sh "ansible-playbook -i 'localhost,' -c local --vault-password-file=${env.USF_ANSIBLE_VAULT_KEY} ansible/playbook.yml --extra-vars 'java_home=${env.JAVA_HOME}' -t ImageService"
-    // archiveArtifacts artifacts: 'ImageService/build/distributions/ImageService*.rpm'
     stash name: "imageservicerpm", includes: "ImageService/build/distributions/ImageService*.rpm"
+  }
+  stage('Stash the key') {
+    stash name: 'usfansiblevaultkey', includes: "${env.USF_ANSIBLE_VAULT_KEY}"
   }
 }
 node('imageservice') {
@@ -40,8 +41,10 @@ node('master') {
   stage('Build RPM artifacts') {
     sh 'rm -rf rpms'
     dir('rpms') {
+      unstash 'usfansiblevaultkey'
       unstash 'imagefetcherrpm'
       unstash 'imageservicerpm'
+      sh 'ls -all'
       archiveArtifacts artifacts: 'ImageFetcher/build/distributions/ImageFetcher*.rpm'
       archiveArtifacts artifacts: 'ImageService/build/distributions/ImageService*.rpm'
     }
