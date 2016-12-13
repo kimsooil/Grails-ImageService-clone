@@ -15,7 +15,7 @@ node('master') {
     sh "ansible-playbook -i 'localhost,' -c local --vault-password-file=${env.USF_ANSIBLE_VAULT_KEY} ansible/playbook.yml --extra-vars 'java_home=${env.JAVA_HOME}' -t ImageService"
     stash name: "imageservicerpm", includes: "ImageService/build/distributions/ImageService*.rpm"
   }
-  stage('Stash Ansible Related') {
+  stage('Stash Deploy Related') {
     sh "ansible-playbook -i 'localhost,' -c local --vault-password-file=${env.USF_ANSIBLE_VAULT_KEY} ansible/playbook.yml --extra-vars 'keystash=${env.USF_ANSIBLE_VAULT_KEY}' -t keystash"
     stash name: 'keystash', includes: "rpms/ansible-vault-usf*.rpm"
     stash name: 'ansible', includes: "ansible/**/*"
