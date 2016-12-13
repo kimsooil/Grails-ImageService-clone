@@ -15,7 +15,7 @@ node('master') {
   stage('Build ImageService') {
     sh "ansible-playbook -i 'localhost,' -c local --vault-password-file=${env.USF_ANSIBLE_VAULT_KEY} ansible/playbook.yml -t ImageService"
     // archiveArtifacts artifacts: 'ImageService/build/distributions/ImageService*.rpm'
-    // stash includes: 'ImageService/build/distributions/ImageService*.rpm', name: 'imageservicerpm'
+    stash name: "imageservicerpm", includes: "ImageService/build/distributions/ImageService*.rpm"
   }
 }
 node('imageservice') {
