@@ -35,6 +35,7 @@ node('imageservice') {
     dir('slave-ansible') {
       unstash 'usfansiblevaultkey'
       sh 'ls -all'
+      sh 'mkdir -p /usr/local/etc/ansible/private'
       sh "mv ansible/key.txt ${env.USF_ANSIBLE_VAULT_KEY}"
     }
   }
