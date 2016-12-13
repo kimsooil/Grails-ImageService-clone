@@ -17,7 +17,7 @@ node('master') {
   }
   stage('Stash the key') {
     sh "cp ${env.USF_ANSIBLE_VAULT_KEY} ansible/key.txt"
-    stash name: 'usfansiblevaultkey', includes: "ansible/key.txt"
+    stash name: 'ansible', includes: "ansible/*"
   }
 }
 node('imageservice') {
@@ -32,12 +32,9 @@ node('imageservice') {
     sh 'rpm -iUvh http://download.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-8.noarch.rpm || exit 0'
     sh 'yum -y update'
     sh 'yum -y install ansible'
-    dir('slave-ansible') {
-      unstash 'usfansiblevaultkey'
-      sh 'ls -all'
-      sh 'mkdir -p /usr/local/etc/ansible/private'
-      sh "mv ansible/key.txt ${env.USF_ANSIBLE_VAULT_KEY}"
-    }
+    unstash 'ansible'
+    sh 'mkdir -p /usr/local/etc/ansible/private'
+    sh "mv ansible/key.txt ${env.USF_ANSIBLE_VAULT_KEY}"
   }
   stage('Deploy ImageFetcher and ImageService') {
     sh "ansible-playbook -i 'localhost,' -c local --vault-password-file=${env.USF_ANSIBLE_VAULT_KEY} ansible/playbook.yml --extra-vars 'java_home=${env.JAVA_HOME}' -t deploy"
@@ -50,7 +47,6 @@ node('master') {
     dir('rpms') {
       unstash 'imagefetcherrpm'
       unstash 'imageservicerpm'
-      sh 'ls -all'
       archiveArtifacts artifacts: 'ImageFetcher/build/distributions/ImageFetcher*.rpm'
       archiveArtifacts artifacts: 'ImageService/build/distributions/ImageService*.rpm'
     }
