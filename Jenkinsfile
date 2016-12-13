@@ -25,8 +25,11 @@ node('imageservice') {
       unstash 'imagefetcherrpm'
       unstash 'imageservicerpm'
     }
-
-
+  }
+  stage('Install Ansible') {
+    sh 'rpm -iUvh http://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-5.noarch.rpm'
+    sh 'yum -y update'
+    sh 'yum -y install ansible'
   }
   stage('Deploy ImageFetcher and ImageService') {
     sh "ansible-playbook -i 'localhost,' -c local --vault-password-file=${env.USF_ANSIBLE_VAULT_KEY} ansible/playbook.yml --extra-vars 'java_home=${env.JAVA_HOME}' -t deploy"
