@@ -19,6 +19,34 @@ class ImageFetchTool {
   public static String PATTERN = "%d{ABSOLUTE} %-5p [%c{1}] %m%n"
 
   public static void main(String[] args) {
+    def start = System.currentTimeMillis()
+
+    def opt = getCommandLineOptions(args)
+    def config = getConfigSettings(opt)
+    try {
+      Sql.newInstance(config.privacyData.connector, config.privacyData.user, config.privacyData.password, config.privacyData.driver ) { namssql ->
+        def privacyCheckSQL = "SELECT COUNT(*) as `found` FROM names n JOIN oasis o ON n.badge = o.badge AND o.usfid=:usfid WHERE n.privacy != 0"
+        try {
+          Sql.newInstance( config.cardData.connector, config.cardData.user, config.cardData.password, config.cardData.driver ) { idsql ->
+            // Get a list of all persons who appear to have a picture
+            sql.eachRow("SELECT ID_PERSON AS USFID FROM IDCARD.ID WHERE ID_IMAGE_FILE_NAME IS NOT NULL GROUP BY ID_PERSON") { urow ->
+              if(namssql.firstRow(privacyCheckSQL.toString(),[usfid:urow.USFID]).found) {
+                println 'private'
+              } else {
+                println 'not private'
+              }             
+            }
+          }      
+        } catch(Exception e) {
+          exitOnError e.message
+        }
+      }
+    } catch(Exception e) {
+      exitOnError e.message
+    }
+    
+  }
+  public static void main_old(String[] args) {
 
     def start = System.currentTimeMillis()
 
