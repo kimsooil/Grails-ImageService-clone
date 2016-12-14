@@ -24,10 +24,10 @@ class ImageFetchTool {
     def opt = getCommandLineOptions(args)
     def config = getConfigSettings(opt)
     try {
-      Sql.newInstance(config.privacyData.connector, config.privacyData.user, config.privacyData.password, config.privacyData.driver ) { namssql ->
+      Sql.withInstance(config.privacyData.connector, config.privacyData.user, config.privacyData.password, config.privacyData.driver ) { namssql ->
         def privacyCheckSQL = "SELECT COUNT(*) as `found` FROM names n JOIN oasis o ON n.badge = o.badge AND o.usfid=:usfid WHERE n.privacy != 0"
         try {
-          Sql.newInstance( config.cardData.connector, config.cardData.user, config.cardData.password, config.cardData.driver ) { idsql ->
+          Sql.withInstance( config.cardData.connector, config.cardData.user, config.cardData.password, config.cardData.driver ) { idsql ->
             // Get a list of all persons who appear to have a picture
             idsql.eachRow({ o ->
               if (o.all) {
