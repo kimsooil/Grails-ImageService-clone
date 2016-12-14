@@ -125,9 +125,9 @@ class ImageFetchTool {
 //
 //      log.info "${now-start}ms|images: ${images}|errors: ${errors}|toPrivate: ${toPrivate}|fromPrivate: ${fromPrivate}"
 //
-//    }catch(Exception e) {
-//      exitOnError e.message
-//    }
+    }catch(Exception e) {
+      exitOnError e.message
+    }
   }
 
   private static getCommandLineOptions(String[] args){
