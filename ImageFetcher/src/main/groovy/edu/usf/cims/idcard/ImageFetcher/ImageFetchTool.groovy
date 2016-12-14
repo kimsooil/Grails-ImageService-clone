@@ -37,8 +37,8 @@ class ImageFetchTool {
       // def selectStatementAllActive = "SELECT ID_PERSON, ID_IMAGE_FILE_NAME FROM idcard.id WHERE id.ID_ACTIVE_CODE='A' AND ID_PERSON LIKE 'U%' AND ID_IMAGE_FILE_NAME IS NOT NULL" as String
       // def selectStatementSingleDay = "SELECT ID_PERSON, ID_IMAGE_FILE_NAME FROM idcard.id WHERE id.ID_ACTIVE_CODE='A' AND ID_PERSON LIKE 'U%' AND ID_IMAGE_FILE_NAME LIKE '${date}%'" as String
 
-      def selectStatementAllActive = "SELECT ID_PERSON, ID_IMAGE_FILE_NAME FROM idcard.id WHERE ID_IMAGE_FILE_NAME IS NOT NULL" as String
-      def selectStatementSingleDay = "SELECT ID_PERSON, ID_IMAGE_FILE_NAME FROM idcard.id WHERE ID_IMAGE_FILE_NAME LIKE '${date}%'" as String
+      def selectStatementAllActive = "SELECT ID_PERSON, ID_IMAGE_FILE_NAME FROM IDCARD.ID WHERE ID_IMAGE_FILE_NAME IS NOT NULL" as String
+      def selectStatementSingleDay = "SELECT ID_PERSON, ID_IMAGE_FILE_NAME FROM IDCARD.ID WHERE ID_IMAGE_FILE_NAME LIKE '${date}%'" as String
       // id.ID_ACTIVE_CODE='A' AND ID_PERSON LIKE 'U%'
       // Just select the cards created on a specific day unless the --all switch was used
       def activeStatement = selectStatementSingleDay
