@@ -29,7 +29,18 @@ class ImageFetchTool {
         try {
           Sql.newInstance( config.cardData.connector, config.cardData.user, config.cardData.password, config.cardData.driver ) { idsql ->
             // Get a list of all persons who appear to have a picture
-            sql.eachRow("SELECT ID_PERSON AS USFID FROM IDCARD.ID WHERE ID_IMAGE_FILE_NAME IS NOT NULL GROUP BY ID_PERSON") { urow ->
+            idsql.eachRow({ o ->
+              if (o.all) {
+                return "SELECT ID_PERSON AS USFID FROM IDCARD.ID WHERE ID_IMAGE_FILE_NAME IS NOT NULL GROUP BY ID_PERSON" as String
+              } else {
+                def date = new Date().format('yyyyMMdd') as String
+                if (o.date) {
+                  date = opt.date
+                }
+                return "SELECT ID_PERSON AS USFID FROM IDCARD.ID WHERE ID_IMAGE_FILE_NAME IS NOT NULL AND ID_ISSUE_DATE > TO_DATE('${date}','YYYYMMDD') GROUP BY ID_PERSON" as String
+              }
+              return 
+            }.call(opt)) { urow ->
               if(namssql.firstRow(privacyCheckSQL.toString(),[usfid:urow.USFID]).found) {
                 println 'private'
               } else {
