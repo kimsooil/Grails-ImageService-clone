@@ -71,7 +71,7 @@ class ImageFetchTool {
                     log.debug "Transferring ${i.path} to ${newFileLocation}"
                     return true;
                   } else {
-                    patharr.shift()
+                    patharr.remove(0)
                   }
                 }
                 return false
