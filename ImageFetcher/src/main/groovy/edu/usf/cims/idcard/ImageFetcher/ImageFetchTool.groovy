@@ -20,9 +20,14 @@ class ImageFetchTool {
 
   public static void main(String[] args) {
     def start = System.currentTimeMillis()
-
     def opt = getCommandLineOptions(args)
     def config = getConfigSettings(opt)
+    
+    def images = 0
+    def toPrivate = 0
+    def toPublic = 0
+    def toInactive = 0
+
     try {
       Sql.withInstance(config.privacyData.connector, config.privacyData.user, config.privacyData.password, config.privacyData.driver ) { namssql ->
         def privacyCheckSQL = "SELECT COUNT(*) as `found` FROM names n JOIN oasis o ON n.badge = o.badge AND o.usfid=:usfid WHERE n.privacy != 0 LIMIT 1"
@@ -30,6 +35,7 @@ class ImageFetchTool {
           Sql.withInstance( config.cardData.connector, config.cardData.user, config.cardData.password, config.cardData.driver ) { idsql ->
             def activeCardCheckSQL = "SELECT COUNT(*) AS FOUND FROM IDCARD.ID WHERE ID_IMAGE_FILE_NAME IS NOT NULL AND ID_ACTIVE_CODE='A' AND ID_PERSON LIKE :usfid AND ROWNUM = 1"
             def inactiveCardListSQL = "SELECT ID_PERSON, ID_IMAGE_FILE_NAME, ID_ISSUE_DATE FROM IDCARD.ID WHERE ID_IMAGE_FILE_NAME IS NOT NULL AND ID_PERSON LIKE :usfid ORDER BY ID_ISSUE_DATE DESC"
+            def activeCardSQL = "SELECT ID_PERSON, ID_IMAGE_FILE_NAME FROM IDCARD.ID WHERE ID_IMAGE_FILE_NAME IS NOT NULL AND ID_ACTIVE_CODE='A' AND ID_PERSON LIKE :usfid AND ROWNUM = 1 ORDER BY ID_ISSUE_DATE DESC"            
             // Get a list of all persons who appear to have a picture
             idsql.eachRow({ o ->
               if (o.all) {
@@ -45,7 +51,33 @@ class ImageFetchTool {
             }.call(opt)) { urow ->
                 // Check to see if the user is active 
               def oldimages = []
+              def transferimage = { ipath,newFileLocation ->
+                def patharr = ipath.trim().tokenize('\\')
+                def fileName = patharr.pop()
+                while(patharr.size() > 0) {
+                  def i = new File(new File([config.origBaseDir,patharr.join('\\')].join('\\')),fileName)
+                  if(i.canRead()) {
+                    BufferedImage imageData = ImageIO.read(i)
+                    
+                    log.debug "${i.path} => ${newFileLocation}"
+                    BufferedImage thumbnail = Scalr.resize(imageData, Scalr.Method.SPEED, Scalr.Mode.FIT_TO_HEIGHT, 200, 200)
+                    def cropX = thumbnail.getWidth() / 2 as int
+                    
+                    // Add a white matte around the image so that we can crop it square and not lose any of the image
+                    thumbnail = Scalr.pad(thumbnail, 100, java.awt.Color.WHITE)
+                    thumbnail = Scalr.crop(thumbnail,cropX,100,200,200)
+                    ImageIO.write(thumbnail, 'JPEG', new File(newFileLocation))
+                    thumbnail.flush()
+                    log.debug "Transferring ${i.path} to ${newFileLocation}"
+                    return true;
+                  } else {
+                    patharr.shift()
+                  }
+                }
+                return false
+              }
               if(idsql.firstRow(activeCardCheckSQL.toString(),[usfid:urow.USFID]).FOUND) {
+                def ac = idsql.firstRow(activeCardSQL.toString(),[usfid:urow.USFID])
                 if(namssql.firstRow(privacyCheckSQL.toString(),[usfid:urow.USFID]).found) {
                   println 'private'
                   oldimages.plus([new File("${config.inactiveDir}/${urow.USFID}.jpg"),new File("${config.newBaseDir}/${urow.USFID}.jpg")])
@@ -55,6 +87,10 @@ class ImageFetchTool {
                     }                  
                   }
                   oldimages.clear()
+                  if(transferimage.call(ac.ID_IMAGE_FILE_NAME,"${config.privateDir}/${urow.USFID}.jpg")) {
+                    images++
+                    toPrivate++
+                  }
                 } else {
                   println 'not private'
                   oldimages.plus([new File("${config.inactiveDir}/${urow.USFID}.jpg"),new File("${config.privateDir}/${urow.USFID}.jpg")])
@@ -64,6 +100,10 @@ class ImageFetchTool {
                     }                  
                   }
                   oldimages.clear()
+                  if(transferimage.call(ac.ID_IMAGE_FILE_NAME,"${config.newBaseDir}/${urow.USFID}.jpg")) {
+                    images++
+                    toPublic++
+                  }
                 }                             
               } else {
                 // Move any images from private or public to inactive
@@ -74,9 +114,21 @@ class ImageFetchTool {
                   }
                 }
                 oldimages.clear()
+                boolean found = false
+                idsql.eachRow(inactiveCardListSQL.toString(),[usfid:urow.USFID]) { ia ->
+                  if(!found) {
+                    found = transferimage.call(ia.ID_IMAGE_FILE_NAME,"${config.inactiveDir}/${urow.USFID}.jpg")
+                    if(found) { 
+                      images++ 
+                      toInactive++
+                    }
+                  }
+                }
               }
             }
-          }      
+          }
+          def now = System.currentTimeMillis()
+          log.info "${now-start}ms|images: ${images}|toPublic: ${toPublic}|toPrivate: ${toPrivate}|toInactive: ${toInactive}"
         } catch(Exception e) {
           exitOnError e.message
         }
