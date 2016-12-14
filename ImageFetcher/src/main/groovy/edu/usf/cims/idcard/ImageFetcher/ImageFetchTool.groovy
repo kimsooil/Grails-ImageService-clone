@@ -56,10 +56,11 @@ class ImageFetchTool {
                 def fileName = patharr.pop()
                 while(patharr.size() > 0) {
                   def i = new File(new File([config.origBaseDir,patharr.join('\\')].join('\\')),fileName)
+                  println "Trying to read ${i.absolutePath} => ${newFileLocation}"
                   if(i.canRead()) {
                     BufferedImage imageData = ImageIO.read(i)
                     
-                    log.debug "${i.path} => ${newFileLocation}"
+                    log.debug "${i.absolutePath} => ${newFileLocation}"
                     BufferedImage thumbnail = Scalr.resize(imageData, Scalr.Method.SPEED, Scalr.Mode.FIT_TO_HEIGHT, 200, 200)
                     def cropX = thumbnail.getWidth() / 2 as int
                     
@@ -79,7 +80,6 @@ class ImageFetchTool {
               if(idsql.firstRow(activeCardCheckSQL.toString(),[usfid:urow.USFID]).FOUND) {
                 def ac = idsql.firstRow(activeCardSQL.toString(),[usfid:urow.USFID])
                 if(namssql.firstRow(privacyCheckSQL.toString(),[usfid:urow.USFID]).found) {
-                  println 'private'
                   oldimages.plus([new File("${config.inactiveDir}/${urow.USFID}.jpg"),new File("${config.newBaseDir}/${urow.USFID}.jpg")])
                   oldimages.each{ i -> 
                     if(i.canRead()) {
@@ -92,7 +92,6 @@ class ImageFetchTool {
                     toPrivate++
                   }
                 } else {
-                  println 'not private'
                   oldimages.plus([new File("${config.inactiveDir}/${urow.USFID}.jpg"),new File("${config.privateDir}/${urow.USFID}.jpg")])
                   oldimages.each{ i -> 
                     if(i.canRead()) {
