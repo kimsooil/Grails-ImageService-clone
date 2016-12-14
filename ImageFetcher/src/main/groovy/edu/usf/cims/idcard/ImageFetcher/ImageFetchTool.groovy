@@ -25,9 +25,11 @@ class ImageFetchTool {
     def config = getConfigSettings(opt)
     try {
       Sql.withInstance(config.privacyData.connector, config.privacyData.user, config.privacyData.password, config.privacyData.driver ) { namssql ->
-        def privacyCheckSQL = "SELECT COUNT(*) as `found` FROM names n JOIN oasis o ON n.badge = o.badge AND o.usfid=:usfid WHERE n.privacy != 0"
+        def privacyCheckSQL = "SELECT COUNT(*) as `found` FROM names n JOIN oasis o ON n.badge = o.badge AND o.usfid=:usfid WHERE n.privacy != 0 LIMIT 1"
         try {
           Sql.withInstance( config.cardData.connector, config.cardData.user, config.cardData.password, config.cardData.driver ) { idsql ->
+            def activeCardCheckSQL = "SELECT COUNT(*) AS FOUND FROM IDCARD.ID WHERE ID_IMAGE_FILE_NAME IS NOT NULL AND ID_ACTIVE_CODE='A' AND ID_PERSON LIKE :usfid AND ROWNUM = 1"
+            def inactiveCardListSQL = "SELECT ID_PERSON, ID_IMAGE_FILE_NAME, ID_ISSUE_DATE FROM IDCARD.ID WHERE ID_IMAGE_FILE_NAME IS NOT NULL AND ID_PERSON LIKE :usfid ORDER BY ID_ISSUE_DATE DESC"
             // Get a list of all persons who appear to have a picture
             idsql.eachRow({ o ->
               if (o.all) {
@@ -41,11 +43,38 @@ class ImageFetchTool {
               }
               return 
             }.call(opt)) { urow ->
-              if(namssql.firstRow(privacyCheckSQL.toString(),[usfid:urow.USFID]).found) {
-                println 'private'
+                // Check to see if the user is active 
+              def oldimages = []
+              if(idsql.firstRow(activeCardCheckSQL.toString(),[usfid:urow.USFID]).FOUND) {
+                if(namssql.firstRow(privacyCheckSQL.toString(),[usfid:urow.USFID]).found) {
+                  println 'private'
+                  oldimages.plus([new File("${config.inactiveDir}/${urow.USFID}.jpg"),new File("${config.newBaseDir}/${urow.USFID}.jpg")])
+                  oldimages.each{ i -> 
+                    if(i.canRead()) {
+                      boolean fileMoved = i.renameTo(new File(new File(config.privateDir), i.getName()))
+                    }                  
+                  }
+                  oldimages.clear()
+                } else {
+                  println 'not private'
+                  oldimages.plus([new File("${config.inactiveDir}/${urow.USFID}.jpg"),new File("${config.privateDir}/${urow.USFID}.jpg")])
+                  oldimages.each{ i -> 
+                    if(i.canRead()) {
+                      boolean fileMoved = i.renameTo(new File(new File(config.newBaseDir), i.getName()))
+                    }                  
+                  }
+                  oldimages.clear()
+                }                             
               } else {
-                println 'not private'
-              }             
+                // Move any images from private or public to inactive
+                oldimages.plus([new File("${config.newBaseDir}/${urow.USFID}.jpg"),new File("${config.privateDir}/${urow.USFID}.jpg")])
+                oldimages.each{ i ->
+                  if(i.canRead()) {
+                    boolean fileMoved = i.renameTo(new File(new File(config.inactiveDir), i.getName()))
+                  }
+                }
+                oldimages.clear()
+              }
             }
           }      
         } catch(Exception e) {
