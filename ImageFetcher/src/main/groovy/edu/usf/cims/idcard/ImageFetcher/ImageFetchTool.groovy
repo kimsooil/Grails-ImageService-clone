@@ -26,8 +26,7 @@ class ImageFetchTool {
     def config = getConfigSettings(opt)
 
     try {
-      println opt.dump()
-      
+            
       def cardDataSQL = Sql.newInstance( config.cardData.connector, config.cardData.user, config.cardData.password, config.cardData.driver )
 
       // Use today's date unless the --date switch was used
