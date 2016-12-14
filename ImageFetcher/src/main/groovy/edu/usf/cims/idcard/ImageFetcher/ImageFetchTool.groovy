@@ -55,7 +55,7 @@ class ImageFetchTool {
                 def patharr = ipath.trim().tokenize('\\')
                 def fileName = patharr.pop()
                 while(patharr.size() > 0) {
-                  def i = new File(new File([config.origBaseDir,patharr.join('\\')].join('\\')),fileName)
+                  def i = new File(new File([config.origBaseDir,patharr.join('/')].join('/')),fileName)
                   println "Trying to read ${i.absolutePath} => ${newFileLocation}"
                   if(i.canRead()) {
                     BufferedImage imageData = ImageIO.read(i)
