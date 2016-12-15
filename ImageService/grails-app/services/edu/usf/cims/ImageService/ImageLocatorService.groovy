@@ -23,6 +23,18 @@ class ImageLocatorService {
                     if(imageFile.exists() ) {
                         log.debug("Returned private image for [${tokenResult.message}] Service [${serviceName}]")
                         return [type: "private_image", file: imageFile]
+                    } else if (grailsApplication.config.image_service.services[serviceName].showInactive) {
+                        imageFile = new File("${grailsApplication.config.image_service.inactiveImageDir}/${tokenResult.message}.jpg")
+                        if(imageFile.exists() ) {
+                          log.debug("Returned inactive card image for [${tokenResult.message}] Service [${serviceName}]")
+                          return [type: "inactive_image", file: imageFile]
+                        }
+                    }
+                } else if (grailsApplication.config.image_service.services[serviceName].showInactive) {
+                    imageFile = new File("${grailsApplication.config.image_service.inactiveImageDir}/${tokenResult.message}.jpg")
+                    if(imageFile.exists() ) {
+                      log.debug("Returned inactive card image for [${tokenResult.message}] Service [${serviceName}]")
+                      return [type: "inactive_image", file: imageFile]
                     }
                 }
 
