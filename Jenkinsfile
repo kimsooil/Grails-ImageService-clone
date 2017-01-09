@@ -2,6 +2,7 @@ node('master') {
   env.JAVA_HOME = tool 'jdk8'
   env.GRADLE_HOME = tool 'gradle2.4'
   env.GRAILS_HOME = tool 'grails3.0.2'
+  env.ANSIBLE_HOME = tool 'ansible2.2.0'
   env.PATH = "${env.JENKINS_HOME}/bin:${env.GRADLE_HOME}/bin:${env.GRAILS_HOME}/bin:${env.PATH}"
   checkout scm
   stage('Get Ansible Roles') {
@@ -22,6 +23,9 @@ node('master') {
   }
 }
 node('imageservice') {
+  env.ANSIBLE_HOME = tool 'ansible2.2.0'
+  env.JAVA_HOME = tool 'jdk8'
+  env.PATH = "${env.JENKINS_HOME}/bin:${env.ANSIBLE_HOME}/bin:${env.PATH}"
   stage('Unstash the rpms') {
     sh 'rm -rf rpms'
     unstash 'keystash'
@@ -31,9 +35,9 @@ node('imageservice') {
     }
   }
   stage('Install Ansible') {
-    sh 'rpm -iUvh http://download.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-8.noarch.rpm || exit 0'
-    sh 'yum -y update'
-    sh 'yum -y install ansible'
+    // sh 'rpm -iUvh http://download.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-8.noarch.rpm || exit 0'
+    // sh 'yum -y update'
+    // sh 'yum -y install ansible'
     sh 'yum -y install rpms/ansible-vault-usf*.rpm || exit 0'
     unstash 'ansible'
   }
