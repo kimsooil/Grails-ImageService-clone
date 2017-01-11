@@ -85,7 +85,10 @@ class ViewController {
         ImageIO.write(scaled, "jpg", response.outputStream)
         return
     }
-
+    def resolveClient = {        
+        def res = tokenValidatorService.lookupToken(params.clientid)
+        render res as JSON
+    }
     def showError = {
         renderError(500, "Bad Request")
     }
