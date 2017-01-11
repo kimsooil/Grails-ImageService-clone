@@ -7,6 +7,7 @@ import org.imgscalr.Scalr
 import org.imgscalr.Scalr.Method
 import org.imgscalr.Scalr.Mode
 import org.springframework.core.io.Resource
+import grails.converters.*
 
 /**
 *
