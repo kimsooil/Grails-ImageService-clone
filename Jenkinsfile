@@ -44,7 +44,7 @@ node('imageservice') {
       echo "Needs to be installed"
     } else {
       echo "Already installed"
-      if(distVer.toFloat().floor() == 7) {
+      if(distVer.toFloat().trunc() == 7) {
         echo "Detected Centos 7"
       }
     }
