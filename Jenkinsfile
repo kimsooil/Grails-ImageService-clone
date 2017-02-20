@@ -39,7 +39,6 @@ node('imageservice') {
     def distVer = sh script: 'python -c "import platform;print(platform.linux_distribution()[1])"', returnStdout: true
     def missingEpel = sh script: 'rpm -q --quiet epel-release', returnStatus: true
     def missingAnsible = sh script: 'rpm -q --quiet ansible', returnStatus: true
-    echo "Has epel is: ${hasEpel}"
     if (missingEpel) {
       echo "Epel to be installed"
       if(distVer.toFloat().trunc() == 7) {
