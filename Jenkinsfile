@@ -37,7 +37,7 @@ node('imageservice') {
   }
   stage('Install Ansible') {
     // rpm -q --quiet epel-release
-    def hasEpel = sh script: 'rpm -q --quiet epel-release', returnStdout: true
+    def hasEpel = sh script: 'rpm -q --quiet epel-release', returnStatus: true
     echo "Has epel is: ${hasEpel}"
     if (env.BRANCH_NAME == 'whatever') {
     }
