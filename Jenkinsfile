@@ -25,7 +25,8 @@ node('master') {
 node('imageservice') {
   env.ANSIBLE_HOME = tool 'ansible2.2.0'
   env.JAVA_HOME = tool 'jdk8'
-  env.PATH = "${env.JENKINS_HOME}/bin:${env.ANSIBLE_HOME}/bin:${env.PATH}"
+  // env.PATH = "${env.JENKINS_HOME}/bin:${env.ANSIBLE_HOME}/bin:${env.PATH}"
+  env.PATH = "${env.JENKINS_HOME}/bin:${env.PATH}"
   stage('Unstash the rpms') {
     sh 'rm -rf rpms'
     unstash 'keystash'
