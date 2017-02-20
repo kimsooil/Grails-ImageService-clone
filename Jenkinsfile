@@ -36,6 +36,11 @@ node('imageservice') {
     }
   }
   stage('Install Ansible') {
+    // rpm -q --quiet epel-release
+    def hasEpel = sh script: 'rpm -q --quiet epel-release', returnStdout: true
+    echo "Has epel is: ${hasEpel}"
+    if (env.BRANCH_NAME == 'whatever') {
+    }
     sh 'yum -y install rpms/ansible-vault-usf*.rpm || exit 0'
     unstash 'ansible'
   }
