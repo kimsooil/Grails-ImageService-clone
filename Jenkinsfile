@@ -37,12 +37,16 @@ node('imageservice') {
   }
   stage('Install Ansible') {
     // rpm -q --quiet epel-release
+    def distVer = sh script: 'python -c "import platform;print(platform.linux_distribution()[1])"', returnStdout: true
     def hasEpel = sh script: 'rpm -q --quiet epel-release', returnStatus: true
     echo "Has epel is: ${hasEpel}"
     if (hasEpel) {
       echo "Needs to be installed"
     } else {
       echo "Already installed"
+      if(Math.floor(Float.parseFloat(distVer)) == 7) {
+        echo "Detected Centos 7"
+      }
     }
     sh 'yum -y install rpms/ansible-vault-usf*.rpm || exit 0'
     unstash 'ansible'
