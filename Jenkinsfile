@@ -64,7 +64,7 @@ node('imageservice') {
     unstash 'ansible'
   }
   stage('Deploy ImageFetcher and ImageService') {
-    sh "ansible-playbook -i 'localhost,' -c local --vault-password-file=${env.USF_ANSIBLE_VAULT_KEY} ansible/playbook.yml --extra-vars 'java_home=${env.JAVA_HOME} deploy_env=${env.DEPLOY_ENV}' -t deploy"
+    sh "ansible-playbook -i 'localhost,' -c local --vault-password-file=${env.USF_ANSIBLE_VAULT_KEY} ansible/playbook.yml --extra-vars 'java_home=${env.JAVA_HOME} deploy_env=${env.DEPLOY_ENV} package_revision=${env.PACKAGE_REVISION}' -t deploy"
   }
 }
 node('master') {
