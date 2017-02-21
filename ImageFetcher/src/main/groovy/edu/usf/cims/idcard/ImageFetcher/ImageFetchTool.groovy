@@ -40,10 +40,12 @@ class ImageFetchTool {
             idsql.eachRow({ o ->
               if (o.all) {
                 return "SELECT ID_PERSON AS USFID FROM IDCARD.ID WHERE ID_IMAGE_FILE_NAME IS NOT NULL GROUP BY ID_PERSON" as String
+              } else if(o.usfid) {
+                return "SELECT ID_PERSON AS USFID FROM IDCARD.ID WHERE ID_IMAGE_FILE_NAME IS NOT NULL AND ID_PERSON='${o.usfid.value}'" as String
               } else {
                 def date = new Date().format('yyyyMMdd') as String
                 if (o.date) {
-                  date = opt.date
+                  date = o.date.value
                 }
                 return "SELECT ID_PERSON AS USFID FROM IDCARD.ID WHERE ID_IMAGE_FILE_NAME IS NOT NULL AND ID_ISSUE_DATE > TO_DATE('${date}','YYYYMMDD') GROUP BY ID_PERSON" as String
               }
@@ -148,6 +150,7 @@ class ImageFetchTool {
       h longOpt:'help', 'usage information', required: false
       _ longOpt:'all', 'process all card images', required: false
       _ longOpt:'date', args:1, argName:'date', "date (format: yyyyMMdd) to process images for.  Default: ${new Date().format('yyyyMMdd')}", required: false
+      _ longOpt:'usfid', args: 1, 'process single card images', required: false
       _ longOpt:'config', args:1, argName:'configFileName', 'groovy config file **REQUIRED**', required: true
     }
 
