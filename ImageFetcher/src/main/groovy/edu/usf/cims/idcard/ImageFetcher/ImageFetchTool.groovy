@@ -53,6 +53,7 @@ class ImageFetchTool {
               return 
             }.call(opt)) { urow ->
                 // Check to see if the user is active 
+              System.out.println(urow as JSON)
               def oldimages = []
               def transferimage = { ipath,newFileLocation ->
                 def patharr = ipath.trim().tokenize('\\')
