@@ -76,7 +76,7 @@ class ImageFetchTool {
       e.printStackTrace(System.out);
     }    
   }
-  private static transferimage(ipath,newFileLocation) {
+  private static transferimage(ipath,newFileLocation,config) {
     def patharr = ipath.trim().tokenize('\\')
     def fileName = patharr.pop()
     while(patharr.size() > 0) {
@@ -126,7 +126,7 @@ class ImageFetchTool {
           }                  
         }
         oldimages.clear()
-        if(transferimage(ac.ID_IMAGE_FILE_NAME,"${config.privateDir}/${urow.USFID}.jpg")) {
+        if(transferimage(ac.ID_IMAGE_FILE_NAME,"${config.privateDir}/${urow.USFID}.jpg",config)) {
           summary.images++
           summary.toPrivate++
         }
@@ -138,7 +138,7 @@ class ImageFetchTool {
           }                  
         }
         oldimages.clear()
-        if(transferimage(ac.ID_IMAGE_FILE_NAME,"${config.newBaseDir}/${urow.USFID}.jpg")) {
+        if(transferimage(ac.ID_IMAGE_FILE_NAME,"${config.newBaseDir}/${urow.USFID}.jpg",config)) {
           summary.images++
           summary.toPublic++
         }
@@ -155,7 +155,7 @@ class ImageFetchTool {
       boolean found = false
       idsql.eachRow(inactiveCardListSQL.toString(),[usfid:urow.USFID]) { ia ->
         if(!found) {
-          found = transferimage(ia.ID_IMAGE_FILE_NAME,"${config.inactiveDir}/${urow.USFID}.jpg")
+          found = transferimage(ia.ID_IMAGE_FILE_NAME,"${config.inactiveDir}/${urow.USFID}.jpg",config)
           if(found) { 
             summary.images++ 
             summary.toInactive++
