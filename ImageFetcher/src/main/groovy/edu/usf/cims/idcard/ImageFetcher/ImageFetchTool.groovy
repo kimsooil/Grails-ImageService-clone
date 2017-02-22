@@ -52,7 +52,7 @@ class ImageFetchTool {
                   if (o.date) {
                     date = o.date.value as String
                   }
-                  return "SELECT ID_PERSON AS USFID FROM IDCARD.ID WHERE ID_IMAGE_FILE_NAME IS NOT NULL AND ID_ISSUE_DATE > TO_DATE(${date},'YYYYMMDD') GROUP BY ID_PERSON".toString()
+                  return "SELECT ID_PERSON AS USFID FROM IDCARD.ID WHERE ID_IMAGE_FILE_NAME IS NOT NULL AND ID_ISSUE_DATE > TO_DATE('${date}','YYYYMMDD') GROUP BY ID_PERSON".toString()
                 }
                 return 
               }.call(opt)) { urow ->
