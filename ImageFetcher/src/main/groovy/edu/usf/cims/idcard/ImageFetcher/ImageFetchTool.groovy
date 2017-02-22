@@ -4,6 +4,7 @@ import groovy.sql.Sql
 import groovy.io.FileType
 import groovy.util.logging.Slf4j
 import groovy.util.CliBuilder
+import groovy.json.JsonOutput  
 import org.apache.commons.cli.Option
 import java.awt.image.BufferedImage
 import javax.imageio.ImageIO
@@ -53,7 +54,7 @@ class ImageFetchTool {
               return 
             }.call(opt)) { urow ->
                 // Check to see if the user is active 
-              System.out.println(urow.toString())
+              System.out.println(JsonOutput.toJson(urow))
               def oldimages = []
               def transferimage = { ipath,newFileLocation ->
                 def patharr = ipath.trim().tokenize('\\')
