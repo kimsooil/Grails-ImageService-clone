@@ -41,9 +41,9 @@ class ImageFetchTool {
             try {
               idsql.eachRow({ o ->
                 if (o.all) {
-                  return "SELECT ID_PERSON AS USFID FROM IDCARD.ID WHERE ID_IMAGE_FILE_NAME IS NOT NULL GROUP BY ID_PERSON" as String
+                  return "SELECT ID_PERSON AS USFID FROM IDCARD.ID WHERE ID_IMAGE_FILE_NAME IS NOT NULL GROUP BY ID_PERSON"
                 } else if(o.usfid) {
-                  // return """SELECT ID_PERSON AS "USFID" FROM IDCARD.ID WHERE ID_IMAGE_FILE_NAME IS NOT NULL AND ID_PERSON LIKE ${o.usfid.value} GROUP BY ID_PERSON""" as String
+                  // return """SELECT ID_PERSON AS "USFID" FROM IDCARD.ID WHERE ID_IMAGE_FILE_NAME IS NOT NULL AND ID_PERSON LIKE ${o.usfid.value} GROUP BY ID_PERSON"""
                   System.out.println(JsonOutput.toJson(idsql.firstRow("""SELECT * FROM IDCARD.ID WHERE ROWNUM <= 1""")))
                   return """SELECT ${o.usfid.value as String} AS "USFID" FROM DUAL"""
                 } else {
@@ -51,10 +51,10 @@ class ImageFetchTool {
                   if (o.date) {
                     date = o.date.value
                   }
-                  return "SELECT ID_PERSON AS USFID FROM IDCARD.ID WHERE ID_IMAGE_FILE_NAME IS NOT NULL AND ID_ISSUE_DATE > TO_DATE('${date}','YYYYMMDD') GROUP BY ID_PERSON" as String
+                  return "SELECT ID_PERSON AS USFID FROM IDCARD.ID WHERE ID_IMAGE_FILE_NAME IS NOT NULL AND ID_ISSUE_DATE > TO_DATE('${date}','YYYYMMDD') GROUP BY ID_PERSON"
                 }
                 return 
-              }.call(opt)) { urow ->
+              }.call(opt).toString()) { urow ->
                   // Check to see if the user is active 
                 System.out.println(JsonOutput.toJson(urow))
                 def oldimages = []
