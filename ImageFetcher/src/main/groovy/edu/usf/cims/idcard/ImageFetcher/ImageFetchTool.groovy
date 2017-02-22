@@ -37,14 +37,14 @@ class ImageFetchTool {
             try {
               if(o.all) {
                 idsql.eachRow("SELECT ID_PERSON AS USFID FROM IDCARD.ID WHERE ID_IMAGE_FILE_NAME IS NOT NULL GROUP BY ID_PERSON") { r ->
-                  processCard(r,idsql,namssql).each({ k,v ->
+                  processCard(r,idsql,namssql,config).each({ k,v ->
                     summary[k] += v
                   })
                 }
               } else if(o.usfid) {
                 def usfid = o.usfid.value as String
                 idsql.eachRow("SELECT ID.ID_PERSON AS USFID FROM IDCARD.ID WHERE ID.ID_IMAGE_FILE_NAME IS NOT NULL AND ID.ID_PERSON LIKE :usfid GROUP BY ID.ID_PERSON",[ usfid: usfid ]) { r ->
-                  processCard(r,idsql,namssql).each({ k,v ->
+                  processCard(r,idsql,namssql,config).each({ k,v ->
                     summary[k] += v
                   })
                 }
@@ -54,7 +54,7 @@ class ImageFetchTool {
                   date = o.date.value as String
                 }
                 idsql.eachRow("SELECT ID_PERSON AS USFID FROM IDCARD.ID WHERE ID_IMAGE_FILE_NAME IS NOT NULL AND ID_ISSUE_DATE > TO_DATE( :date,'YYYYMMDD') GROUP BY ID_PERSON", [ date: date ]) { r-> 
-                  processCard(r,idsql,namssql).each({ k,v ->
+                  processCard(r,idsql,namssql,config).each({ k,v ->
                     summary[k] += v
                   })
                 }
@@ -103,7 +103,7 @@ class ImageFetchTool {
     return false
   }
   
-  private static processCard(urow,idsql,namssql) {
+  private static processCard(urow,idsql,namssql,config) {
     def activeCardCheckSQL = "SELECT COUNT(*) AS FOUND FROM IDCARD.ID WHERE ID_IMAGE_FILE_NAME IS NOT NULL AND ID_ACTIVE_CODE='A' AND ID_PERSON LIKE :usfid AND ROWNUM = 1"
     def inactiveCardListSQL = "SELECT ID_PERSON, ID_IMAGE_FILE_NAME, ID_ISSUE_DATE FROM IDCARD.ID WHERE ID_IMAGE_FILE_NAME IS NOT NULL AND ID_PERSON LIKE :usfid ORDER BY ID_ISSUE_DATE DESC"
     def activeCardSQL = "SELECT ID_PERSON, ID_IMAGE_FILE_NAME FROM IDCARD.ID WHERE ID_IMAGE_FILE_NAME IS NOT NULL AND ID_ACTIVE_CODE='A' AND ID_PERSON LIKE :usfid AND ROWNUM = 1 ORDER BY ID_ISSUE_DATE DESC"            
