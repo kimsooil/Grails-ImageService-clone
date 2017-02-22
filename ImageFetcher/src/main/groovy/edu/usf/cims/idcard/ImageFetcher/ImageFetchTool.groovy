@@ -44,7 +44,7 @@ class ImageFetchTool {
                   return "SELECT ID_PERSON AS USFID FROM IDCARD.ID WHERE ID_IMAGE_FILE_NAME IS NOT NULL GROUP BY ID_PERSON" as String
                 } else if(o.usfid) {
                   // return """SELECT ID_PERSON AS "USFID" FROM IDCARD.ID WHERE ID_IMAGE_FILE_NAME IS NOT NULL AND ID_PERSON LIKE '${o.usfid.value}' GROUP BY ID_PERSON""" as String
-                  System.out.println(JsonOutput.toJson(idsql.firstRow("""SELECT * FROM IDCARD.ID""")))
+                  System.out.println(JsonOutput.toJson(idsql.firstRow("""SELECT * FROM IDCARD.ID WHERE ROWNUM <= 1""")))
                   return """SELECT '${o.usfid.value}' AS "USFID" FROM DUAL"""
                 } else {
                   def date = new Date().format('yyyyMMdd') as String
