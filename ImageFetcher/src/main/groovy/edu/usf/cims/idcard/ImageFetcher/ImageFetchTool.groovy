@@ -133,6 +133,7 @@ class ImageFetchTool {
                 }
               }
             } catch(Exception e) {
+              e.printStackTrace(System.out);
               exitOnError e.message
             }
               
