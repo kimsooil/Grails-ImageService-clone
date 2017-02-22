@@ -42,7 +42,7 @@ class ImageFetchTool {
               if (o.all) {
                 return "SELECT ID_PERSON AS USFID FROM IDCARD.ID WHERE ID_IMAGE_FILE_NAME IS NOT NULL GROUP BY ID_PERSON" as String
               } else if(o.usfid) {
-                return "SELECT ID_PERSON AS USFID FROM IDCARD.ID WHERE ID_IMAGE_FILE_NAME IS NOT NULL AND USFID = '${o.usfid.value}' GROUP BY USFID" as String
+                return "SELECT ID_PERSON AS USFID FROM IDCARD.ID WHERE ID_IMAGE_FILE_NAME IS NOT NULL AND ID_PERSON = '${o.usfid.value}' GROUP BY USFID" as String
               } else {
                 def date = new Date().format('yyyyMMdd') as String
                 if (o.date) {
