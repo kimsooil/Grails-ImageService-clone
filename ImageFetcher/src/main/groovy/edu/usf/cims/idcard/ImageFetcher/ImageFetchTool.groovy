@@ -54,7 +54,7 @@ class ImageFetchTool {
                   return "SELECT ID_PERSON AS USFID FROM IDCARD.ID WHERE ID_IMAGE_FILE_NAME IS NOT NULL AND ID_ISSUE_DATE > TO_DATE('${date}','YYYYMMDD') GROUP BY ID_PERSON"
                 }
                 return 
-              }.call(opt).toString()) { urow ->
+              }.call(opt)) { urow ->
                   // Check to see if the user is active 
                 System.out.println(JsonOutput.toJson(urow))
                 def oldimages = []
