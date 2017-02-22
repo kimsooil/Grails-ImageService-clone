@@ -40,9 +40,9 @@ class ImageFetchTool {
             // Get a list of all persons who appear to have a picture
             try {
               
-              map = [a: 1, b: 2]
-              paramsList = map.values().toList()
-              m(*paramsList)
+//              map = [a: 1, b: 2]
+//              paramsList = map.values().toList()
+//              m(*paramsList)
               idsql.eachRow(*{ o ->
                 if (o.all) {
                   return [ "SELECT ID_PERSON AS USFID FROM IDCARD.ID WHERE ID_IMAGE_FILE_NAME IS NOT NULL GROUP BY ID_PERSON".toString()]
