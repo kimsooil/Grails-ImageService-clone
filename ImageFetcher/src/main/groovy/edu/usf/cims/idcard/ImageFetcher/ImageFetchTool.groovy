@@ -39,6 +39,28 @@ class ImageFetchTool {
             def activeCardSQL = "SELECT ID_PERSON, ID_IMAGE_FILE_NAME FROM IDCARD.ID WHERE ID_IMAGE_FILE_NAME IS NOT NULL AND ID_ACTIVE_CODE='A' AND ID_PERSON LIKE :usfid AND ROWNUM = 1 ORDER BY ID_ISSUE_DATE DESC"            
             // Get a list of all persons who appear to have a picture
             try {
+              
+              map = [a: 1, b: 2]
+              paramsList = map.values().toList()
+              m(*paramsList)
+              idsql.eachRow(*{ o ->
+                if (o.all) {
+                  return [ "SELECT ID_PERSON AS USFID FROM IDCARD.ID WHERE ID_IMAGE_FILE_NAME IS NOT NULL GROUP BY ID_PERSON".toString()]
+                } else if(o.usfid) {
+                  def usfid = o.usfid.value as String
+                  return [ "SELECT ID.ID_PERSON AS USFID FROM IDCARD.ID WHERE ID.ID_IMAGE_FILE_NAME IS NOT NULL AND ID.ID_PERSON LIKE :usfid GROUP BY ID.ID_PERSON".toString(), [ usfid: usfid ] ]
+                } else {
+                  def date = new Date().format('yyyyMMdd') as String
+                  if (o.date) {
+                    date = o.date.value as String
+                  }
+                  return [ "SELECT ID_PERSON AS USFID FROM IDCARD.ID WHERE ID_IMAGE_FILE_NAME IS NOT NULL AND ID_ISSUE_DATE > TO_DATE(:date,'YYYYMMDD') GROUP BY ID_PERSON".toString(), [ date: date ] ]
+                }                  
+              }.call(opt)) { urow ->
+                
+              }
+              
+              
               idsql.eachRow({ o ->
                 if (o.all) {
                   return "SELECT ID_PERSON AS USFID FROM IDCARD.ID WHERE ID_IMAGE_FILE_NAME IS NOT NULL GROUP BY ID_PERSON"
