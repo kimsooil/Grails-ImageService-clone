@@ -100,8 +100,10 @@ class ImageFetchTool {
         ImageIO.write(thumbnail, 'JPEG', new File(newFileLocation))
         thumbnail.flush()
         log.debug "Transferring ${i.path} to ${newFileLocation}"
+        System.out.println("Transferring ${i.path} to ${newFileLocation}")
         return true;
       } else {
+        System.out.println("Cannot locate ${i.path}")
         patharr.remove(0)
       }
     }
