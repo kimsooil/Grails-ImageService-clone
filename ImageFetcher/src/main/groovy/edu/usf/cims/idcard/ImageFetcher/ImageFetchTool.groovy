@@ -84,9 +84,6 @@ class ImageFetchTool {
   private static transferimage(ipath,newFileLocation,config) {
     def patharr = ipath.trim().tokenize('\\')
     def fileName = patharr.pop()
-    if(patharr.size() == 2) {
-      patharr.add(0, 'USF')
-    }
     while(patharr.size() > 0) {
       def iFiles = new FileNameFinder().getFileNames(config.origBaseDir, '**/'+patharr.join('/')+'/'+fileName)
       if(iFiles.size() > 0) {
