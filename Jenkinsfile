@@ -3,7 +3,9 @@ node('master') {
   env.GRADLE_HOME = tool 'gradle2.4'
   env.GRAILS_HOME = tool 'grails3.0.2'
   env.ANSIBLE_HOME = tool 'ansible2.2.0'
-  env.PATH = "${env.JENKINS_HOME}/bin:${env.GRADLE_HOME}/bin:${env.GRAILS_HOME}/bin:${env.PATH}"
+  def mvnHome = tool 'maven3'
+  
+  env.PATH = "${env.JENKINS_HOME}/bin:${mvnHome}/bin:${env.GRADLE_HOME}/bin:${env.GRAILS_HOME}/bin:${env.PATH}"
   checkout scm
   stage('Get Ansible Roles') {
     sh 'ansible-galaxy install -r ansible/requirements.yml -p ansible/roles/ -f'
