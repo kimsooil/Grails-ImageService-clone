@@ -83,6 +83,9 @@ class ImageFetchTool {
   private static transferimage(ipath,newFileLocation,config) {
     def patharr = ipath.trim().tokenize('\\')
     def fileName = patharr.pop()
+    if(patharr.size() == 2) {
+      patharr.add(0, 'USF')
+    }
     while(patharr.size() > 0) {
       def i = new File(new File([config.origBaseDir,patharr.join('/')].join('/')),fileName)
       log.debug "Trying to read ${i.absolutePath} => ${newFileLocation}"
