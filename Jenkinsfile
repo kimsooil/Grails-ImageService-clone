@@ -1,6 +1,6 @@
 node('master') {
   env.JAVA_HOME = tool 'jdk8'
-  env.GRADLE_HOME = tool 'gradle2.4'
+  env.GRADLE_HOME = tool 'gradle3.3'
   env.GRAILS_HOME = tool 'grails3.0.2'
   env.ANSIBLE_HOME = tool 'ansible2.2.0'
   def mvnHome = tool 'maven3'
