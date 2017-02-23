@@ -89,7 +89,6 @@ class ImageFetchTool {
       if(iFiles.size() > 0) {
         def i = new File(iFiles.first())
         log.debug "Trying to read ${i.absolutePath} => ${newFileLocation}"
-        System.out.println("Trying to read ${i.absolutePath} => ${newFileLocation}")
         if(i.canRead()) {
           BufferedImage imageData = ImageIO.read(i)
 
@@ -113,28 +112,6 @@ class ImageFetchTool {
         System.out.println("Search pattern unmatched for ${'**/'+patharr.join('/')+'/'+fileName}")
         patharr.remove(0)        
       }
-//      def i = new File(new File([config.origBaseDir,patharr.join('/')].join('/')),fileName)
-//      log.debug "Trying to read ${i.absolutePath} => ${newFileLocation}"
-//      System.out.println("Trying to read ${i.absolutePath} => ${newFileLocation}")
-//      if(i.canRead()) {
-//        BufferedImage imageData = ImageIO.read(i)
-//
-//        log.debug "${i.absolutePath} => ${newFileLocation}"
-//        BufferedImage thumbnail = Scalr.resize(imageData, Scalr.Method.SPEED, Scalr.Mode.FIT_TO_HEIGHT, 200, 200)
-//        def cropX = thumbnail.getWidth() / 2 as int
-//
-//        // Add a white matte around the image so that we can crop it square and not lose any of the image
-//        thumbnail = Scalr.pad(thumbnail, 100, java.awt.Color.WHITE)
-//        thumbnail = Scalr.crop(thumbnail,cropX,100,200,200)
-//        ImageIO.write(thumbnail, 'JPEG', new File(newFileLocation))
-//        thumbnail.flush()
-//        log.debug "Transferring ${i.path} to ${newFileLocation}"
-//        System.out.println("Transferring ${i.path} to ${newFileLocation}")
-//        return true;
-//      } else {
-//        System.out.println("Cannot locate ${i.path}")
-//        patharr.remove(0)
-//      }
     }
     return false
   }
