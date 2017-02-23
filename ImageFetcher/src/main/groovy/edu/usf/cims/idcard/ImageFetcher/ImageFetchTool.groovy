@@ -88,7 +88,6 @@ class ImageFetchTool {
       def iFiles = new FileNameFinder().getFileNames(config.origBaseDir, '**/'+patharr.join('/')+'/'+fileName)
       if(iFiles.size() > 0) {
         def i = new File(iFiles.first())
-        System.out.println("Trying to read ${i.absolutePath}")
         log.debug "Trying to read ${i.absolutePath} => ${newFileLocation}"
         System.out.println("Trying to read ${i.absolutePath} => ${newFileLocation}")
         if(i.canRead()) {
