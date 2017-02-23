@@ -35,14 +35,14 @@ class ImageFetchTool {
           Sql.withInstance( config.cardData.connector, config.cardData.user, config.cardData.password, config.cardData.driver ) { idsql ->
             // Get a list of all persons who appear to have a picture
             try {
-              if(o.all) {
+              if(opt.all) {
                 idsql.eachRow("SELECT ID_PERSON AS USFID FROM IDCARD.ID WHERE ID_IMAGE_FILE_NAME IS NOT NULL GROUP BY ID_PERSON") { r ->
                   processCard(r,idsql,namssql,config).each({ k,v ->
                     summary[k] += v
                   })
                 }
-              } else if(o.usfid) {
-                def usfid = o.usfid.value as String
+              } else if(opt.usfid) {
+                def usfid = opt.usfid.value as String
                 idsql.eachRow("SELECT ID.ID_PERSON AS USFID FROM IDCARD.ID WHERE ID.ID_IMAGE_FILE_NAME IS NOT NULL AND ID.ID_PERSON LIKE :usfid GROUP BY ID.ID_PERSON",[ usfid: usfid ]) { r ->
                   processCard(r,idsql,namssql,config).each({ k,v ->
                     summary[k] += v
@@ -50,8 +50,8 @@ class ImageFetchTool {
                 }
               } else {
                 def date = new Date().format('yyyyMMdd') as String
-                if (o.date) {
-                  date = o.date.value as String
+                if (opt.date) {
+                  date = opt.date.value as String
                 }
                 idsql.eachRow("SELECT ID_PERSON AS USFID FROM IDCARD.ID WHERE ID_IMAGE_FILE_NAME IS NOT NULL AND ID_ISSUE_DATE > TO_DATE( :date,'YYYYMMDD') GROUP BY ID_PERSON", [ date: date ]) { r-> 
                   processCard(r,idsql,namssql,config).each({ k,v ->
