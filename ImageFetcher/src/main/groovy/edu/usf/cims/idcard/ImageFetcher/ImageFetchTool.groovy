@@ -44,6 +44,7 @@ class ImageFetchTool {
                 }
               } else if(opt.usfid) {
                 def usfid = opt.usfid.value as String
+                System.out.println(usfid)
                 def getusfidsSQL = "SELECT ID.ID_PERSON AS USFID FROM IDCARD.ID WHERE ID.ID_IMAGE_FILE_NAME IS NOT NULL AND ID.ID_PERSON LIKE :usfid GROUP BY ID.ID_PERSON"
                 idsql.eachRow(getusfidsSQL.toString(),[ usfid: usfid ]) { r ->
                   processCard(r,idsql,namssql,config).each({ k,v ->
