@@ -101,11 +101,11 @@ class ImageFetchTool {
           thumbnail = Scalr.crop(thumbnail,cropX,100,200,200)
           ImageIO.write(thumbnail, 'JPEG', new File(newFileLocation))
           thumbnail.flush()
-          log.debug "Transferring ${i.path} to ${newFileLocation}"
-          System.out.println("Transferring ${i.path} to ${newFileLocation}")
+          log.debug "Transferring ${i.path} => ${newFileLocation}"
+          System.out.println("Transferring ${i.path} => ${newFileLocation}")
           return true;
         } else {
-          System.out.println("Cannot locate ${i.path}")
+          System.out.println("Cannot locate image at ${i.path}")
           patharr.remove(0)
         }                
       } else {
