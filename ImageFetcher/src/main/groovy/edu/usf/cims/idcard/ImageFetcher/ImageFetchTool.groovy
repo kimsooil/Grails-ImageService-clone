@@ -89,8 +89,9 @@ class ImageFetchTool {
     }
     while(patharr.size() > 0) {
       def iFiles = new FileNameFinder().getFileNames(config.origBaseDir, '**/'+patharr.join('/')+'/'+fileName)
-      for(f in iFiles) {
-        System.out.println("Found ${f}")
+      if(iFiles.size() > 0) {
+        def i = new File(iFiles.first())
+        System.out.println("Trying to read ${i.absolutePath}")
       }
       def i = new File(new File([config.origBaseDir,patharr.join('/')].join('/')),fileName)
       log.debug "Trying to read ${i.absolutePath} => ${newFileLocation}"
