@@ -36,14 +36,16 @@ class ImageFetchTool {
             // Get a list of all persons who appear to have a picture
             try {
               if(opt.all) {
-                idsql.eachRow("SELECT ID_PERSON AS USFID FROM IDCARD.ID WHERE ID_IMAGE_FILE_NAME IS NOT NULL GROUP BY ID_PERSON") { r ->
+                def getusfidsSQL = "SELECT ID_PERSON AS USFID FROM IDCARD.ID WHERE ID_IMAGE_FILE_NAME IS NOT NULL GROUP BY ID_PERSON"
+                idsql.eachRow(getusfidsSQL.toString()) { r ->
                   processCard(r,idsql,namssql,config).each({ k,v ->
                     summary[k] += v
                   })
                 }
               } else if(opt.usfid) {
                 def usfid = opt.usfid.value as String
-                idsql.eachRow("SELECT ID.ID_PERSON AS USFID FROM IDCARD.ID WHERE ID.ID_IMAGE_FILE_NAME IS NOT NULL AND ID.ID_PERSON LIKE :usfid GROUP BY ID.ID_PERSON",[ usfid: usfid ]) { r ->
+                def getusfidsSQL = "SELECT ID.ID_PERSON AS USFID FROM IDCARD.ID WHERE ID.ID_IMAGE_FILE_NAME IS NOT NULL AND ID.ID_PERSON LIKE :usfid GROUP BY ID.ID_PERSON"
+                idsql.eachRow(getusfidsSQL.toString(),[ usfid: usfid ]) { r ->
                   processCard(r,idsql,namssql,config).each({ k,v ->
                     summary[k] += v
                   })
@@ -53,7 +55,8 @@ class ImageFetchTool {
                 if (opt.date) {
                   date = opt.date.value as String
                 }
-                idsql.eachRow("SELECT ID_PERSON AS USFID FROM IDCARD.ID WHERE ID_IMAGE_FILE_NAME IS NOT NULL AND ID_ISSUE_DATE > TO_DATE( :date,'YYYYMMDD') GROUP BY ID_PERSON", [ date: date ]) { r-> 
+                def getusfidsSQL = "SELECT ID_PERSON AS USFID FROM IDCARD.ID WHERE ID_IMAGE_FILE_NAME IS NOT NULL AND ID_ISSUE_DATE > TO_DATE( :date,'YYYYMMDD') GROUP BY ID_PERSON"
+                idsql.eachRow(getusfidsSQL.toString(), [ date: date ]) { r-> 
                   processCard(r,idsql,namssql,config).each({ k,v ->
                     summary[k] += v
                   })
