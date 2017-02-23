@@ -118,7 +118,7 @@ class ImageFetchTool {
       toInactive: 0,
       images: 0
     ]
-    System.out.println(JsonOutput.toJson(urow))
+    // System.out.println(JsonOutput.toJson(urow))
     def oldimages = []
     if(idsql.firstRow(activeCardCheckSQL.toString(),[usfid:urow.USFID]).FOUND) {
       def ac = idsql.firstRow(activeCardSQL.toString(),[usfid:urow.USFID])
