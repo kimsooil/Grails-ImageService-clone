@@ -4,6 +4,7 @@ import groovy.sql.Sql
 import groovy.io.FileType
 import groovy.util.logging.Slf4j
 import groovy.util.CliBuilder
+import groovy.util.FileNameFinder
 import groovy.json.JsonOutput  
 import org.apache.commons.cli.Option
 import java.awt.image.BufferedImage
@@ -89,7 +90,7 @@ class ImageFetchTool {
     while(patharr.size() > 0) {
       def iFiles = new FileNameFinder().getFileNames(config.origBaseDir, '**/'+patharr.join('/')+'/'+fileName)
       for(f in iFiles) {
-        System.out.println("Found ${f.path}")
+        System.out.println("Found ${f}")
       }
       def i = new File(new File([config.origBaseDir,patharr.join('/')].join('/')),fileName)
       log.debug "Trying to read ${i.absolutePath} => ${newFileLocation}"
