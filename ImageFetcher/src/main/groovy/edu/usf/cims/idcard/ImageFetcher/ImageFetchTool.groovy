@@ -86,6 +86,7 @@ class ImageFetchTool {
     while(patharr.size() > 0) {
       def i = new File(new File([config.origBaseDir,patharr.join('/')].join('/')),fileName)
       log.debug "Trying to read ${i.absolutePath} => ${newFileLocation}"
+      System.out.println("Trying to read ${i.absolutePath} => ${newFileLocation}")
       if(i.canRead()) {
         BufferedImage imageData = ImageIO.read(i)
 
