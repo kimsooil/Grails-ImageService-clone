@@ -44,9 +44,7 @@ class ImageFetchHandler {
     this.namssql = namssql
     this.config = config
     this.opt = opt
-    System.out.println("Build File List")
     this.buildFileList()
-    System.out.println("End Build File List")
   }
   /**
    * Builds the list of USFID and loops them though the processID method
@@ -188,11 +186,13 @@ class ImageFetchHandler {
    **/
   def buildFileList() {
     this.fileList = []
-
+    System.out.println("Build File List")
     def dir = new File(this.config.origBaseDir)
     dir.eachFileRecurse (FileType.FILES) { file ->
       this.fileList << file
+      System.out.print(".")
     }     
+    System.out.println("\nEnd Build File List")
   }
 }
 
