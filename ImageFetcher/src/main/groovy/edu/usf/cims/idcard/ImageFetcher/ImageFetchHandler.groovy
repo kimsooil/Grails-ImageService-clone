@@ -35,6 +35,7 @@ class ImageFetchHandler {
     System.out.println("End Build File List")
   }
   def processImages() {
+    def start = System.currentTimeMillis()
     if(this.opt.all) {
       def getusfidsSQL = "SELECT ID_PERSON AS USFID FROM IDCARD.ID WHERE ID_IMAGE_FILE_NAME IS NOT NULL GROUP BY ID_PERSON"
       this.idsql.eachRow(getusfidsSQL.toString()) { r ->
@@ -63,10 +64,71 @@ class ImageFetchHandler {
         })
       }
     }
-
+    def now = System.currentTimeMillis()
+    log.info "${now-start}ms|images: ${this.summary.images}|toPublic: ${this.summary.toPublic}|toPrivate: ${this.summary.toPrivate}|toInactive: ${this.summary.toInactive}"
   }
   def processId(id) {
-    
+    def activeCardCheckSQL = "SELECT COUNT(*) AS FOUND FROM IDCARD.ID WHERE ID_IMAGE_FILE_NAME IS NOT NULL AND ID_ACTIVE_CODE='A' AND ID_PERSON LIKE :usfid AND ROWNUM = 1"
+    def inactiveCardListSQL = "SELECT ID_PERSON, ID_IMAGE_FILE_NAME, ID_ISSUE_DATE FROM IDCARD.ID WHERE ID_IMAGE_FILE_NAME IS NOT NULL AND ID_PERSON LIKE :usfid ORDER BY ID_ISSUE_DATE DESC"
+    def activeCardSQL = "SELECT ID_PERSON, ID_IMAGE_FILE_NAME FROM IDCARD.ID WHERE ID_IMAGE_FILE_NAME IS NOT NULL AND ID_ACTIVE_CODE='A' AND ID_PERSON LIKE :usfid AND ROWNUM = 1 ORDER BY ID_ISSUE_DATE DESC"            
+    def privacyCheckSQL = "SELECT COUNT(*) as `found` FROM names n JOIN oasis o ON n.badge = o.badge AND o.usfid=:usfid WHERE n.privacy != 0 LIMIT 1"
+    def summary = [
+      toPrivate: 0,
+      toPublic: 0,
+      toInactive: 0,
+      images: 0
+    ]
+    def oldimages = []
+    if(this.idsql.firstRow(activeCardCheckSQL.toString(),[usfid:id]).FOUND) {
+      if(this.namssql.firstRow(privacyCheckSQL.toString(),[usfid:id]).found) {
+        oldimages.plus([new File("${this.config.inactiveDir}/${id}.jpg"),new File("${this.config.newBaseDir}/${id}.jpg")])
+        oldimages.each{ i -> 
+          if(i.canRead()) {
+            boolean fileMoved = i.renameTo(new File(new File(this.config.privateDir), i.getName()))
+          }                  
+        }
+        oldimages.clear()
+        if(transferimage(ac.ID_IMAGE_FILE_NAME,"${this.config.privateDir}/${id}.jpg",this.config)) {
+          this.summary.images++
+          this.summary.toPrivate++
+        }
+      } else {
+        oldimages.plus([new File("${this.config.inactiveDir}/${id}.jpg"),new File("${this.config.privateDir}/${id}.jpg")])
+        oldimages.each{ i -> 
+          if(i.canRead()) {
+            boolean fileMoved = i.renameTo(new File(new File(this.config.newBaseDir), i.getName()))
+          }                  
+        }
+        oldimages.clear()
+        if(transferimage(ac.ID_IMAGE_FILE_NAME,"${this.config.newBaseDir}/${id}.jpg",this.config)) {
+          this.summary.images++
+          this.summary.toPublic++
+        }
+      }                             
+    } else {
+      // Move any images from private or public to inactive
+      oldimages.plus([new File("${this.config.newBaseDir}/${id}.jpg"),new File("${this.config.privateDir}/${id}.jpg")])
+      oldimages.each{ i ->
+        if(i.canRead()) {
+          boolean fileMoved = i.renameTo(new File(new File(this.config.inactiveDir), i.getName()))
+        }
+      }
+      oldimages.clear()
+      boolean found = false
+      this.idsql.eachRow(inactiveCardListSQL.toString(),[usfid:id]) { ia ->
+        if(!found) {
+          found = transferimage(ia.ID_IMAGE_FILE_NAME,"${this.config.inactiveDir}/${id}.jpg",this.config)
+          if(found) { 
+            summary.images++ 
+            summary.toInactive++
+          }
+        }
+      }
+    }
+    // this.fileList.find { it.path =~ /${id}/ }
+  }
+  def transferimage(srcPath,destPath,config) {
+    return true
   }
   def buildFileList() {
     this.fileList = []
