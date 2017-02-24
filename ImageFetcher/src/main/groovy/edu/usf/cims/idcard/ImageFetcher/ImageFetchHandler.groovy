@@ -149,11 +149,11 @@ class ImageFetchHandler {
           System.out.println("Transferring ${i.path} => ${destPath}")
           return true;        
         } else {
-          System.out.println("Cannot read image at ${this.config.origBaseDir+'/'+patharr.join('/')+'/'+fileName}")
+          System.out.println("Cannot read image at ${this.config.origBaseDir+'/**/'+patharr.join('/')+'/'+fileName}")
           patharr.remove(0)
         }
       } else {
-        System.out.println("Cannot match image at ${this.config.origBaseDir+'/'+patharr.join('/')+'/'+fileName}")
+        System.out.println("Cannot match image at ${this.config.origBaseDir+'/**/'+patharr.join('/')+'/'+fileName}")
         patharr.remove(0)
       }
     }
