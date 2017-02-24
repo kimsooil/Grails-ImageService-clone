@@ -3,7 +3,7 @@ apply plugin: "application"
 mainClassName = 'edu.usf.cims.idcard.ImageFetcher.ImageFetchTool'
 
 sourceCompatibility = 1.6
-version = '1.1.0'
+version = '1.1.1'
 
 repositories {
     mavenCentral()
