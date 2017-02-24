@@ -132,21 +132,26 @@ class ImageFetchHandler {
     def fileName = patharr.pop()
     while(patharr.size() > 0) {
       def i = this.fileList.find { it.path =~ /${patharr.join('/')+'/'+fileName}/ }
-      if(i.canRead()) {
-        BufferedImage imageData = ImageIO.read(i)
+      if(i) {
+        if(i.canRead()) {
+          BufferedImage imageData = ImageIO.read(i)
 
-        log.debug "${i.absolutePath} => ${destPath}"
-        BufferedImage thumbnail = Scalr.resize(imageData, Scalr.Method.SPEED, Scalr.Mode.FIT_TO_HEIGHT, 200, 200)
-        def cropX = thumbnail.getWidth() / 2 as int
+          log.debug "${i.absolutePath} => ${destPath}"
+          BufferedImage thumbnail = Scalr.resize(imageData, Scalr.Method.SPEED, Scalr.Mode.FIT_TO_HEIGHT, 200, 200)
+          def cropX = thumbnail.getWidth() / 2 as int
 
-        // Add a white matte around the image so that we can crop it square and not lose any of the image
-        thumbnail = Scalr.pad(thumbnail, 100, java.awt.Color.WHITE)
-        thumbnail = Scalr.crop(thumbnail,cropX,100,200,200)
-        ImageIO.write(thumbnail, 'JPEG', new File(destPath))
-        thumbnail.flush()
-        log.debug "Transferring ${i.path} => ${destPath}"
-        System.out.println("Transferring ${i.path} => ${destPath}")
-        return true;        
+          // Add a white matte around the image so that we can crop it square and not lose any of the image
+          thumbnail = Scalr.pad(thumbnail, 100, java.awt.Color.WHITE)
+          thumbnail = Scalr.crop(thumbnail,cropX,100,200,200)
+          ImageIO.write(thumbnail, 'JPEG', new File(destPath))
+          thumbnail.flush()
+          log.debug "Transferring ${i.path} => ${destPath}"
+          System.out.println("Transferring ${i.path} => ${destPath}")
+          return true;        
+        } else {
+          System.out.println("Cannot read image at ${i.path}")
+          patharr.remove(0)
+        }
       } else {
         System.out.println("Cannot locate image at ${i.path}")
         patharr.remove(0)
