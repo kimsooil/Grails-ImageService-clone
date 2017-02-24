@@ -84,7 +84,7 @@ class ImageFetchHandler {
     ]
     def oldimages = []
     if(this.idsql.firstRow(activeCardCheckSQL.toString(),[usfid:id]).FOUND) {
-      def ac = this.idsql.firstRow(activeCardSQL.toString(),[usfid:urow.USFID])
+      def ac = this.idsql.firstRow(activeCardSQL.toString(),[usfid:id])
       if(this.namssql.firstRow(privacyCheckSQL.toString(),[usfid:id]).found) {
         oldimages.plus([new File("${this.config.inactiveDir}/${id}.jpg"),new File("${this.config.newBaseDir}/${id}.jpg")])
         oldimages.each{ i -> 
