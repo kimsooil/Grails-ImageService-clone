@@ -192,8 +192,8 @@ class ImageFetchHandler {
     dir.eachFileRecurse (FileType.FILES) { file ->
       this.fileList << file
       filecount++
-      if(filecount%100 == 0) {
-        System.out.print("${filecount} card images found")
+      if(filecount%1000 == 0) {
+        System.out.println("${filecount} card images found")
       }
     }     
     System.out.println("${filecount} total card images found")
