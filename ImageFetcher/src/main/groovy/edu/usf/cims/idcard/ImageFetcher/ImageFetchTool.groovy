@@ -48,42 +48,42 @@ class ImageFetchTool {
             // Get a list of all persons who appear to have a picture
             def imageFetchHandler = new ImageFetchHandler(idsql,namssql,config,opt)
             imageFetchHandler.processImages()
-            try {
-              if(opt.all) {
-                def getusfidsSQL = "SELECT ID_PERSON AS USFID FROM IDCARD.ID WHERE ID_IMAGE_FILE_NAME IS NOT NULL GROUP BY ID_PERSON"
-                idsql.eachRow(getusfidsSQL.toString()) { r ->
-                  processCard(r,idsql,namssql,config).each({ k,v ->
-                    summary[k] += v
-                  })
-                }
-              } else if(opt.usfid) {
-                def usfid = opt.usfid.value as String
-                System.out.println(usfid)
-                def getusfidsSQL = "SELECT ID.ID_PERSON AS USFID FROM IDCARD.ID WHERE ID.ID_IMAGE_FILE_NAME IS NOT NULL AND ID.ID_PERSON LIKE ? GROUP BY ID.ID_PERSON"
-                idsql.eachRow(getusfidsSQL.toString(),[ usfid ]) { r ->
-                  processCard(r,idsql,namssql,config).each({ k,v ->
-                    summary[k] += v
-                  })
-                }
-              } else {
-                def date = new Date().format('yyyyMMdd') as String
-                if (opt.date) {
-                  date = opt.date.value as String
-                }
-                def getusfidsSQL = "SELECT ID_PERSON AS USFID FROM IDCARD.ID WHERE ID_IMAGE_FILE_NAME IS NOT NULL AND ID_ISSUE_DATE > TO_DATE( ? ,'YYYYMMDD') GROUP BY ID_PERSON"
-                idsql.eachRow(getusfidsSQL.toString(), [ date ]) { r-> 
-                  processCard(r,idsql,namssql,config).each({ k,v ->
-                    summary[k] += v
-                  })
-                }
-              }  
-            } catch(Exception e) {
-              e.printStackTrace(System.out);
-              exitOnError e.message
-            }
+//            try {
+//              if(opt.all) {
+//                def getusfidsSQL = "SELECT ID_PERSON AS USFID FROM IDCARD.ID WHERE ID_IMAGE_FILE_NAME IS NOT NULL GROUP BY ID_PERSON"
+//                idsql.eachRow(getusfidsSQL.toString()) { r ->
+//                  processCard(r,idsql,namssql,config).each({ k,v ->
+//                    summary[k] += v
+//                  })
+//                }
+//              } else if(opt.usfid) {
+//                def usfid = opt.usfid.value as String
+//                System.out.println(usfid)
+//                def getusfidsSQL = "SELECT ID.ID_PERSON AS USFID FROM IDCARD.ID WHERE ID.ID_IMAGE_FILE_NAME IS NOT NULL AND ID.ID_PERSON LIKE ? GROUP BY ID.ID_PERSON"
+//                idsql.eachRow(getusfidsSQL.toString(),[ usfid ]) { r ->
+//                  processCard(r,idsql,namssql,config).each({ k,v ->
+//                    summary[k] += v
+//                  })
+//                }
+//              } else {
+//                def date = new Date().format('yyyyMMdd') as String
+//                if (opt.date) {
+//                  date = opt.date.value as String
+//                }
+//                def getusfidsSQL = "SELECT ID_PERSON AS USFID FROM IDCARD.ID WHERE ID_IMAGE_FILE_NAME IS NOT NULL AND ID_ISSUE_DATE > TO_DATE( ? ,'YYYYMMDD') GROUP BY ID_PERSON"
+//                idsql.eachRow(getusfidsSQL.toString(), [ date ]) { r-> 
+//                  processCard(r,idsql,namssql,config).each({ k,v ->
+//                    summary[k] += v
+//                  })
+//                }
+//              }  
+//            } catch(Exception e) {
+//              e.printStackTrace(System.out);
+//              exitOnError e.message
+//            }
           }
-          def now = System.currentTimeMillis()
-          log.info "${now-start}ms|images: ${summary.images}|toPublic: ${summary.toPublic}|toPrivate: ${summary.toPrivate}|toInactive: ${summary.toInactive}"
+//          def now = System.currentTimeMillis()
+//          log.info "${now-start}ms|images: ${summary.images}|toPublic: ${summary.toPublic}|toPrivate: ${summary.toPrivate}|toInactive: ${summary.toInactive}"
         } catch(Exception e) {
           exitOnError e.message
           e.printStackTrace(System.out);
