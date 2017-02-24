@@ -6,6 +6,8 @@
 
 package edu.usf.cims.idcard.ImageFetcher
 
+import groovy.io.FileType
+
 /**
  *
  * @author james
@@ -21,11 +23,16 @@ class ImageFetchHandler {
     toInactive: 0,
     images: 0
   ]
+  def fileList = []
+  
 	def ImageFetchHandler(idsql,namssql,config,opt) {
     this.idsql = idsql
     this.namssql = namssql
     this.config = config
     this.opt = opt
+    System.out.println("Build File List")
+    this.buildFileList()
+    System.out.println("End Build File List")
   }
   def processImages() {
     if(this.opt.all) {
@@ -60,6 +67,14 @@ class ImageFetchHandler {
   }
   def processId(id) {
     
+  }
+  def buildFileList() {
+    this.fileList = []
+
+    def dir = new File(this.config.origBaseDir)
+    dir.eachFileRecurse (FileType.FILES) { file ->
+      this.fileList << file
+    }     
   }
 }
 
