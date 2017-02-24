@@ -7,6 +7,10 @@
 package edu.usf.cims.idcard.ImageFetcher
 
 import groovy.io.FileType
+import java.awt.image.BufferedImage
+import javax.imageio.ImageIO
+import org.imgscalr.Scalr
+import org.imgscalr.Scalr.*
 
 /**
  *
@@ -80,6 +84,7 @@ class ImageFetchHandler {
     ]
     def oldimages = []
     if(this.idsql.firstRow(activeCardCheckSQL.toString(),[usfid:id]).FOUND) {
+      def ac = this.idsql.firstRow(activeCardSQL.toString(),[usfid:urow.USFID])
       if(this.namssql.firstRow(privacyCheckSQL.toString(),[usfid:id]).found) {
         oldimages.plus([new File("${this.config.inactiveDir}/${id}.jpg"),new File("${this.config.newBaseDir}/${id}.jpg")])
         oldimages.each{ i -> 
@@ -88,7 +93,7 @@ class ImageFetchHandler {
           }                  
         }
         oldimages.clear()
-        if(transferimage(ac.ID_IMAGE_FILE_NAME,"${this.config.privateDir}/${id}.jpg",this.config)) {
+        if(this.transferimage(ac.ID_IMAGE_FILE_NAME,"${this.config.privateDir}/${id}.jpg")) {
           this.summary.images++
           this.summary.toPrivate++
         }
@@ -100,7 +105,7 @@ class ImageFetchHandler {
           }                  
         }
         oldimages.clear()
-        if(transferimage(ac.ID_IMAGE_FILE_NAME,"${this.config.newBaseDir}/${id}.jpg",this.config)) {
+        if(this.transferimage(ac.ID_IMAGE_FILE_NAME,"${this.config.newBaseDir}/${id}.jpg")) {
           this.summary.images++
           this.summary.toPublic++
         }
@@ -117,18 +122,41 @@ class ImageFetchHandler {
       boolean found = false
       this.idsql.eachRow(inactiveCardListSQL.toString(),[usfid:id]) { ia ->
         if(!found) {
-          found = transferimage(ia.ID_IMAGE_FILE_NAME,"${this.config.inactiveDir}/${id}.jpg",this.config)
+          found = this.transferimage(ia.ID_IMAGE_FILE_NAME,"${this.config.inactiveDir}/${id}.jpg")
           if(found) { 
-            summary.images++ 
-            summary.toInactive++
+            this.summary.images++ 
+            this.summary.toInactive++
           }
         }
       }
     }
-    // this.fileList.find { it.path =~ /${id}/ }
   }
-  def transferimage(srcPath,destPath,config) {
-    return true
+  def transferimage(srcPath,destPath) {
+    def patharr = srcPath.trim().tokenize('\\')
+    def fileName = patharr.pop()
+    while(patharr.size() > 0) {
+      def i = this.fileList.find { it.path =~ /${patharr.join('/')+'/'+fileName}/ }
+      if(i.canRead()) {
+        BufferedImage imageData = ImageIO.read(i)
+
+        log.debug "${i.absolutePath} => ${destPath}"
+        BufferedImage thumbnail = Scalr.resize(imageData, Scalr.Method.SPEED, Scalr.Mode.FIT_TO_HEIGHT, 200, 200)
+        def cropX = thumbnail.getWidth() / 2 as int
+
+        // Add a white matte around the image so that we can crop it square and not lose any of the image
+        thumbnail = Scalr.pad(thumbnail, 100, java.awt.Color.WHITE)
+        thumbnail = Scalr.crop(thumbnail,cropX,100,200,200)
+        ImageIO.write(thumbnail, 'JPEG', new File(destPath))
+        thumbnail.flush()
+        log.debug "Transferring ${i.path} => ${destPath}"
+        System.out.println("Transferring ${i.path} => ${destPath}")
+        return true;        
+      } else {
+        System.out.println("Cannot locate image at ${i.path}")
+        patharr.remove(0)
+      }
+    }
+    return false
   }
   def buildFileList() {
     this.fileList = []
