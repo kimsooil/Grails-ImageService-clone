@@ -47,6 +47,7 @@ class ImageFetchTool {
           Sql.withInstance( config.cardData.connector, config.cardData.user, config.cardData.password, config.cardData.driver ) { idsql ->
             // Get a list of all persons who appear to have a picture
             def imageFetchHandler = new ImageFetchHandler(idsql,namssql,config,opt)
+            imageFetchHandler.processImages()
             try {
               if(opt.all) {
                 def getusfidsSQL = "SELECT ID_PERSON AS USFID FROM IDCARD.ID WHERE ID_IMAGE_FILE_NAME IS NOT NULL GROUP BY ID_PERSON"
