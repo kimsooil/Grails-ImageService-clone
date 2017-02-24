@@ -186,13 +186,18 @@ class ImageFetchHandler {
    **/
   def buildFileList() {
     this.fileList = []
-    System.out.println("Build File List")
+    def filecount = 0
+    System.out.println("Build Card Images List")
     def dir = new File(this.config.origBaseDir)
     dir.eachFileRecurse (FileType.FILES) { file ->
       this.fileList << file
-      System.out.print(".")
+      filecount++
+      if(filecount%100 == 0) {
+        System.out.print("${filecount} card images found")
+      }
     }     
-    System.out.println("\nEnd Build File List")
+    System.out.println("${filecount} total card images found")
+    System.out.println("End Build Card Images List")
   }
 }
 
