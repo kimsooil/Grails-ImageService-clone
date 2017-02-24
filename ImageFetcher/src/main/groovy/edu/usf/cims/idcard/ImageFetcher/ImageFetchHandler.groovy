@@ -7,6 +7,7 @@
 package edu.usf.cims.idcard.ImageFetcher
 
 import groovy.io.FileType
+import groovy.util.logging.Slf4j
 import java.awt.image.BufferedImage
 import javax.imageio.ImageIO
 import org.imgscalr.Scalr
@@ -16,6 +17,7 @@ import org.imgscalr.Scalr.*
  *
  * @author james
  */
+@Slf4j
 class ImageFetchHandler {
   def idsql
   def namssql
