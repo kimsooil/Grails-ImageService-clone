@@ -167,8 +167,9 @@ class ImageFetchHandler {
           thumbnail = Scalr.crop(thumbnail,cropX,100,200,200)
           ImageIO.write(thumbnail, 'JPEG', new File(destPath))
           thumbnail.flush()
+          imageData.flush()
           log.debug "Transferring ${i.path} => ${destPath}"
-          System.out.println("Transferring ${i.path} => ${destPath}")
+          System.out.println("Transferring ${i.path} => ${destPath}")    
           return true;        
         } else {
           System.out.println("Cannot read image at ${this.config.origBaseDir+'/**/'+patharr.join('/')+'/'+fileName}")
