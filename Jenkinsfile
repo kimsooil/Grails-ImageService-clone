@@ -31,7 +31,7 @@ node('master') {
       archiveArtifacts artifacts: 'ImageFetcher*.rpm'
     }
     dir('ImageService/build/distributions') {
-      archiveArtifacts artifacts: 'ImageService/build/distributions/ImageService*.rpm'
+      archiveArtifacts artifacts: 'ImageService*.rpm'
     }
   }
 }
