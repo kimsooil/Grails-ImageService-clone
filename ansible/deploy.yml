@@ -32,10 +32,26 @@
 - name: Install ImageService RPM
   yum:
     name: "{{ item.path }}"
+    state: latest
+  with_items: "{{ isfind.files|default([]) }}"
+  register: is_result
+  tags:
+    - deploy
+- name: Remove when backported
+  yum:
+    name: ImageService
+    state: absent
+  when: not is_result.changed|default(false)|bool
+  tags:
+    - deploy    
+- name: Fresh install when backported
+  yum:
+    name: "{{ item.path }}"
     state: present
   with_items: "{{ isfind.files|default([]) }}"
+  when: not is_result.changed|default(false)|bool
   tags:
-    - deploy     
+    - deploy
 - name: enable image_service in systemd
   command: /bin/systemctl enable image_service.service
            creates='/etc/systemd/system/multi-user.target.wants/image_service.service'
@@ -50,6 +66,15 @@
     name: haveged
     enabled: yes
     state: restarted
+  tags:
+    - deploy
+- name: Enable and restart image_service
+  service:
+    name: image_service
+    enabled: yes
+    state: restarted
+  tags:
+    - debug
 - name: Copy rpm to remote host
   copy:
     src: "{{ item }}"
