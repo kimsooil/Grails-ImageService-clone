@@ -113,11 +113,6 @@
   when: not if_result.changed|default(false)|bool
   tags:
     - deploy
-- name: Debug result
-  debug:
-    msg: "{{ if_result.changed|bool == True }}"
-  tags:
-    - deploy     
 - name: Get ImageFetcher Facts
   set_fact:
     build_version: "{{ iffind.files[0].path | basename | splitext | first }}"
