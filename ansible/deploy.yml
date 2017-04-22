@@ -43,8 +43,6 @@
     - deploy
 - name: reload units
   command: /bin/systemctl daemon-reload
-  notify:
-    - restart image_service
   tags:
     - deploy
 - name: Enable haveged
