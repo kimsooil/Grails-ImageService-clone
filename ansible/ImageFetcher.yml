@@ -1,0 +1,66 @@
+---
+- name: Build ImageFetcher
+  shell: "{{ item }}"
+  become: no
+  args:
+    chdir: "../ImageFetcher"
+  with_items: 
+    - "gradle clean"
+    - "gradle distZip"
+  tags:
+    - ImageFetcher  
+- name: Purge ImageFetcher
+  file: path=ImageFetcher state=absent
+  tags:
+    - ImageFetcher  
+- name: Create ImageFetcher
+  file: path=ImageFetcher state=directory mode=0755
+  tags:
+    - ImageFetcher  
+- name: Find the ImageFetcher zip that was produced
+  find: 
+    paths: "../ImageFetcher/build/distributions" 
+    patterns: "ImageFetcher*.zip"
+  register: iffind
+  tags:
+    - ImageFetcher      
+- name: Unzip ImageFetcher
+  unarchive:
+    src: "{{ item.path }}"
+    dest: ImageFetcher   
+  with_items: "{{ iffind.files|default([]) }}" 
+  tags:
+    - ImageFetcher  
+- name: Get ImageFetcher Facts
+  set_fact:
+    build_version: "{{ iffind.files[0].path | basename | splitext | first }}"
+  tags:
+    - ImageFetcher  
+- name: create image fetcher config dir
+  file: path=../image_fetcher
+        state=directory
+        mode=0755
+  tags: 
+    - ImageFetcher     
+- name: Create directories for mounting the fileshare and storing images
+  file: path={{ item }}
+        state=directory
+        mode=0755
+  with_items:
+    - ../image_fetcher/public
+    - ../image_fetcher/private
+    - ../image_fetcher/inactive
+    - ../image_fetcher/source
+  tags:
+    - ImageFetcher   
+- name: create ImageFetcher config file
+  template: src="{{ playbook_dir }}/templates/image_service/ImageFetcher.groovy.j2"
+            dest=../image_fetcher/ImageFetcher.groovy
+            mode=0644
+  tags: 
+    - ImageFetcher
+- name: Build ImageFetcher RPM
+  shell: "fpm -s dir -t rpm -n {{ build_version.split('-') | first | quote }} -v {{ build_version.split('-') | last | quote }} --iteration {{ package_revision | quote }} --description {{ 'USF Image Fetcher' | quote }} --vendor {{ 'University of South Florida' | quote }} -d {{ 'haveged' | quote }} --config-files /opt/image_service/ImageFetcher.groovy -p ../ImageFetcher/build/distributions ./ImageFetcher/{{ build_version }}/.=/opt/{{ build_version }} ../image_fetcher/public/.={{ image_public_dir }} ../image_fetcher/private/.={{ image_private_dir }} ../image_fetcher/inactive/.={{ image_inactive_dir }} {{ playbook_dir }}/files/rocky.jpg={{ image_public_dir }}/rocky.jpg ../image_fetcher/ImageFetcher.groovy=/opt/image_service/ImageFetcher.groovy {{ playbook_dir }}/files/check_cardcenter_mount.sh=/usr/local/sbin/check_cardcenter_mount.sh"
+  tags:
+    - ImageFetcher
+

@@ -1,0 +1,30 @@
+image_service {
+    maxImageWidth  = {{ image_max_width}}
+    maxImageHeight = {{ image_max_height}}
+    minImageWidth  = {{ image_min_width }}
+    minImageHeight = {{ image_min_height }}
+    maxTimeDrift   = {{ image_max_time_drift }}
+
+    defaultImage    = '{{ image_public_dir }}/{{ image_default_file }}'
+    normalImageDir  = '{{ image_public_dir }}'
+    privateImageDir = '{{ image_private_dir }}'
+    inactiveImageDir = '{{ image_inactive_dir }}'
+
+    mulesoftKey = '{{ image_service_mulesoft_key }}'
+
+    services = [
+    {% for key, value in image_service_services.iteritems() %}
+    {{ key }} : [
+          tokenAlg: '{{ value.tokenAlg }}',
+          privacy: {{ value.privacy }},
+          showInactive: {{ value.showInactive }},
+          separator: '{{ value.separator }}',
+          encoding: '{{ value.encoding }}',
+          key: '{{ value.key }}',
+          mulesoft: [ {% for clientid in value.mulesoft %}'{{ clientid }}'{% if not loop.last %},{% endif %}{% endfor %} ]
+      ],
+    {% endfor %}
+    ]
+
+
+}

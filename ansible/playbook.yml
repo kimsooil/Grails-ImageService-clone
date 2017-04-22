@@ -1,26 +1,35 @@
 ---
 - hosts: "{{ target_hosts }}"
   pre_tasks:
-    - name: Include production variables
-      include_vars:
-        file: "{{ playbook_dir }}/common/secure_vars/image_service/production.yml"
-      when: deploy_env == "Production"
+    - name: Add env vars
+      include: env_vars.yml
       tags:
         - ImageFetcher
         - ImageService
         - deploy
-    - name: Include development variables
-      include_vars:
-        file: "{{ playbook_dir }}/common/secure_vars/image_service/development.yml"
-      # when: deploy_env == "Development" || deploy_env == "Test"
-      when: "deploy_env in ['Development','Test']"
-      tags:
-        - ImageFetcher
-        - ImageService
-        - deploy
+  vars_files:
+    - ./vars/main.yml
   roles:
     - { role: 'repo_epel', tags: ["deploy"] }
     - { role: 'nginx', tags: ["deploy"] }
     - { role: 'certtool', tags: ["deploy"] }
     - { role: 'mavenlibsextra', tags: ["ImageFetcher"] }
-    - imageservice
+    # - imageservice
+  tasks:
+    - name: Ensure the fpm gem installed
+      command: gem install fpm
+      tags:
+        - ImageFetcher  
+        - ImageService
+    - name: Setup ImageFetcher
+      include: ImageFetcher.yml
+      tags:
+        - ImageFetcher  
+    - name: Setup ImageService
+      include: ImageService.yml
+      tags:
+        - ImageService  
+    - name: Deploy ImageService and ImageFetcher
+      include: deploy.yml
+      tags:
+        - deploy

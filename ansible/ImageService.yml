@@ -1,0 +1,109 @@
+---
+- name: Build ImageService
+  shell: "{{ item }}"
+  become: no
+  args:
+    chdir: "../ImageService"
+  with_items: 
+    - "./gradlew clean"
+    - "./gradlew distZip"
+  tags: 
+    - ImageService  
+- name: Purge ImageService
+  file: path=ImageService state=absent
+  tags:
+    - ImageService  
+- name: Create ImageService
+  file: path=ImageService state=directory mode=0755
+  tags:
+    - ImageService  
+- name: Find the ImageService zip that was produced
+  find: 
+    paths: "../ImageService/build/distributions" 
+    patterns: "ImageService*.zip"
+  register: isfind
+  tags:
+    - ImageService      
+- name: Unzip ImageService
+  unarchive:
+    src: "{{ item.path }}"
+    dest: ImageService   
+  with_items: "{{ isfind.files|default([]) }}" 
+  tags:
+    - ImageService  
+- name: Get ImageService Facts
+  set_fact:
+    build_version: "{{ isfind.files[0].path | basename | splitext | first }}"
+  tags:
+    - ImageService  
+- name: create image service config dir
+  file: path=../image_service
+        state=directory
+        mode=0755
+  tags: 
+    - ImageService  
+- name: create ImageService config file
+  template: src="{{ playbook_dir }}/templates/image_service/ImageService.groovy.j2"
+            dest=../image_service/ImageService.groovy
+            mode=0644
+  tags: 
+    - ImageService  
+- name: create systemd config for image_service
+  copy: dest=../image_service/image_service
+        mode=0644
+        content="SERVER_PORT={{ image_service_port }}\nJAVA_HOME=/opt/jdk8"
+  tags: 
+    - ImageService 
+- name: Create Another ImageService Fact
+  set_fact: 
+    image_service_app_version: "{{ build_version.split('-') | last }}"
+  tags: 
+    - ImageService 
+- name: create image_service systemd file
+  template: src="{{ playbook_dir }}/templates/image_service/image_service.service.j2"
+            dest=../image_service/image_service.service
+            mode=0644
+  tags: 
+    - ImageService
+### Get certs in place
+- name: Prepare certs
+  file: path="{{ item }}"
+        state=directory
+        mode=0755
+  with_items:
+    - "../image_service/certs"
+    - "../image_service/private"
+  tags: 
+    - ImageService
+### nginx configuration
+- name: create nginx config for image_service
+  template: src="{{ playbook_dir }}/templates/nginx/image_service.conf.j2"
+            dest=../image_service/image_service.conf
+            mode=0644
+            backup=no
+  tags: 
+    - ImageService        
+#### Copy the Oracle Java library
+- name: Extract the JCE into Java
+  command: "unzip -j -o {{ playbook_dir }}/files/jce/jce_policy-8.zip -d {{ java_home }}/jre/lib/security"
+  tags:
+    - ImageService
+- name: copy the oracle libraries into Java
+  copy:
+    dest: "{{ java_home }}/jre/lib/ext/ojdbc7.jar"
+    mode: 0644
+    src: "{{ playbook_dir }}/files/oracle/jdbc/12.1.0.2/ojdbc7.jar"    
+  tags:
+    - ImageService
+- name: Install trusted certs in Java
+  copy:
+    dest: "{{ java_home }}/jre/lib/security/jssecacerts"
+    mode: 0644
+    src: "{{ playbook_dir }}/files/jssecacerts"    
+  tags:
+    - ImageService    
+- name: Build ImageService RPM
+  shell: "fpm -s dir -t rpm -n {{ build_version.split('-') | first | quote }} -v {{ image_service_app_version | quote }} --iteration {{ package_revision | quote }} --description {{ 'USF Image Service' | quote }} --vendor {{ 'University of South Florida' | quote }} -d {{ 'nginx' | quote }} -d {{ 'haveged' | quote }} --config-files /opt/image_service/ImageService.groovy --config-files /etc/nginx/sites-available/image_service.conf -p ../ImageService/build/distributions ./ImageService/{{ build_version }}/.=/opt/{{ build_version }} {{ java_home }}/.=/opt/jdk8 ../image_service/ImageService.groovy=/opt/image_service/ImageService.groovy ../image_service/image_service=/etc/sysconfig/image_service ../image_service/image_service.service=/etc/systemd/system/image_service.service ../image_service/image_service.conf=/etc/nginx/sites-available/image_service.conf ../image_service/certs/.=/etc/pki/tls/certs ../image_service/private/.=/etc/pki/tls/private"
+  tags:
+    - ImageService    
+

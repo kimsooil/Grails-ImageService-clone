@@ -1,0 +1,22 @@
+// Directory that contains the original card images
+origBaseDir = '{{ image_source_dir }}'
+
+// Directory to store the modified images in
+newBaseDir = '{{ image_public_dir }}'
+
+// Where to store the images of people with privacy set
+privateDir = "{{ image_private_dir }}"
+
+// Where to store the images of people with inactive cards
+inactiveDir = "{{ image_inactive_dir }}"
+
+// Database connections
+{% for key, value in image_database_connections.iteritems() %}
+{{ key }} = [
+      connector: '{{ value.connector }}',
+      user: '{{ value.user }}',
+      password: '{{ value.password }}',
+      driver: '{{ value.driver }}'
+]
+
+{% endfor %}

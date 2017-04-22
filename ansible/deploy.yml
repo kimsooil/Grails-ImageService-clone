@@ -1,0 +1,161 @@
+---
+- name: upgrade all packages
+  yum:
+    name: '*'
+    state: latest
+  tags:
+    - deploy    
+- name: create package folder
+  file: 
+    path: /tmp/rpms
+    state: "{{ item }}"
+  with_items:
+    - absent
+    - directory
+  tags: 
+    - deploy        
+- name: Copy rpm to remote host
+  copy:
+    src: "{{ item }}"
+    dest: /tmp/rpms
+  with_fileglob:
+    - "../ImageService/build/distributions/ImageService*.rpm"
+  tags: 
+    - deploy          
+- name: Find the ImageService RPM that was produced
+  find: 
+    paths: "/tmp/rpms" 
+    patterns: "ImageService*.rpm"
+  register: isfind
+  tags:
+    - deploy     
+- name: Install ImageService RPM
+  yum:
+    name: "{{ item.path }}"
+    state: present
+  with_items: "{{ isfind.files|default([]) }}"
+  tags:
+    - deploy     
+- name: enable image_service in systemd
+  command: /bin/systemctl enable image_service.service
+           creates='/etc/systemd/system/multi-user.target.wants/image_service.service'
+  tags: 
+    - deploy
+- name: reload units
+  command: /bin/systemctl daemon-reload
+  notify:
+    - restart image_service
+  tags:
+    - deploy
+- name: Enable haveged
+  service:
+    name: haveged
+    enabled: yes
+    state: restarted
+- name: Copy rpm to remote host
+  copy:
+    src: "{{ item }}"
+    dest: /tmp/rpms
+  with_fileglob:
+    - "../ImageFetcher/build/distributions/ImageFetcher*.rpm"
+  tags: 
+    - deploy              
+- name: Find the ImageFetcher RPM that was produced
+  find: 
+    paths: "/tmp/rpms" 
+    patterns: "ImageFetcher*.rpm"
+  register: iffind
+  tags:
+    - deploy     
+- name: Install ImageFetcher RPM
+  yum:
+    name: "{{ item.path }}"
+    state: present
+  with_items: "{{ iffind.files|default([]) }}"
+  tags:
+    - deploy     
+- name: Get ImageFetcher Facts
+  set_fact:
+    build_version: "{{ iffind.files[0].path | basename | splitext | first }}"
+  tags:
+    - deploy  
+- name: Create Another ImageFetcher Fact
+  set_fact: 
+    image_fetcher_version: "{{ build_version.split('-')[1] }}"
+  tags: 
+    - deploy 
+### nginx configuration
+- name: remove the default nginx configuration
+  file: path=/etc/nginx/sites-enabled/default.conf state=absent
+  tags: 
+    - deploy
+- name: create image service config dir
+  file: path=/etc/nginx/sites-enabled
+        state=directory
+        mode=0755
+  tags: 
+    - deploy
+- name: get the template facts
+  set_fact:
+    image_cert_with_ca_chain: "/etc/pki/tls/certs/{{ ansible_fqdn | replace('.', '_') }}.crt"
+    image_cert_key: "/etc/pki/tls/private/{{ ansible_fqdn | replace('.', '_') }}.key"
+    image_web_fqdn: "{{ ansible_fqdn }}"
+  tags: 
+    - deploy
+- name: create nginx config for image_service
+  template:
+    src="{{ playbook_dir }}/templates/nginx/image_service.conf.j2"
+    dest=/etc/nginx/sites-available/image_service.conf
+    mode=0644
+    backup=no
+  tags: 
+    - deploy
+- file: path=/etc/nginx/sites-enabled/image_service.conf
+        src=/etc/nginx/sites-available/image_service.conf
+        state=link
+        force=yes
+  notify:
+    - restart nginx
+  tags: 
+    - deploy
+#### Add cron entries for ImageFetcher
+- name: Fetch new images every 30 min
+  cron: name="Fetch new images every 30 mins"
+        weekday="1-5"
+        hour="8-19"
+        minute={{ ['0,30','15,45','20,50','10,40','5,35','25,55']|random }}
+        user="root"
+        job=". /etc/profile;export JAVA_HOME=/opt/jdk8;export JAVA_OPTS=-Djava.security.egd=file:/dev/./urandom;/opt/ImageFetcher-{{ image_fetcher_version}}/bin/ImageFetcher --config /opt/image_service/ImageFetcher.groovy 2>&1"
+        cron_file="ansible_fetch-images"
+  tags: 
+    - deploy 
+- name: Refresh all images once a month
+  cron: name="Refresh all images once a month"
+        hour={{ 4 |random }}
+        minute={{ 59 |random }}
+        day={{ 7 |random(start=1) }}
+        user="root"
+        job=". /etc/profile;export JAVA_HOME=/opt/jdk8;export JAVA_OPTS=-Djava.security.egd=file:/dev/./urandom;/opt/ImageFetcher-{{ image_fetcher_version}}/bin/ImageFetcher --all --config /opt/image_service/ImageFetcher.groovy 2>&1"
+        cron_file="ansible_fetch-images"
+  tags: 
+    - deploy 
+- name: Check the mountpoint every 5 minutes
+  cron: name="Ensure the card center share is mounted"
+        minute="*/5"
+        user="root"
+        job=". /etc/profile;export JAVA_HOME=/opt/jdk8;export JAVA_OPTS=-Djava.security.egd=file:/dev/./urandom;/usr/local/sbin/check_cardcenter_mount.sh"
+        cron_file="ansible_fetch-images"
+  tags: 
+    - deploy
+#### Open web ports
+- name: Open the correct IPTables ports
+  lineinfile: dest=/etc/sysconfig/iptables
+              regexp="^-A INPUT -p {{item.protocol}} -m state --state NEW -m {{item.protocol}} --dport {{item.port}} -j ACCEPT$"
+              line="-A INPUT -p {{item.protocol}} -m state --state NEW -m {{item.protocol}} --dport {{item.port}} -j ACCEPT"
+              insertbefore="^-A INPUT -j REJECT --reject-with icmp-host-prohibited$"
+  with_items:
+    - { protocol: tcp, port: "{{ image_web_port }}" }
+  notify:
+    - restart iptables
+  tags: 
+    - deploy

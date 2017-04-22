@@ -1,0 +1,13 @@
+[Unit]
+Description=ImageService Grails application
+After=syslog.target network.target
+
+[Service]
+Type=simple
+PIDFile=/var/run/grails/image_service.pid
+EnvironmentFile=/etc/sysconfig/image_service
+ExecStart=/opt/ImageService-{{ image_service_app_version }}/bin/ImageService
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
