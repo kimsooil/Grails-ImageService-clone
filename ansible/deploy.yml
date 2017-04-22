@@ -47,7 +47,7 @@
   yum:
     name: ImageService
     state: absent
-  when: "(not is_result.changed|default(false)|bool or 'FAILED' in is_result.stderr)"
+  when: "is_result.failed|default(false)|bool"
   tags:
     - deploy    
 - name: Fresh install when backported
@@ -55,7 +55,7 @@
     name: "{{ item.path }}"
     state: present
   with_items: "{{ isfind.files|default([]) }}"
-  when: "(not is_result.changed|default(false)|bool or 'FAILED' in is_result.stderr)"
+  when: "is_result.failed|default(false)|bool"
   tags:
     - deploy
 - name: enable image_service in systemd
@@ -109,7 +109,7 @@
   yum:
     name: ImageFetcher
     state: absent
-  when: not if_result.changed|default(false)|bool
+  when: if_result.failed|default(false)|bool
   tags:
     - deploy    
 - name: Fresh install when backported
@@ -117,7 +117,7 @@
     name: "{{ item.path }}"
     state: present
   with_items: "{{ iffind.files|default([]) }}"
-  when: not if_result.changed|default(false)|bool
+  when: if_result.failed|default(false)|bool
   tags:
     - deploy
 - name: Get ImageFetcher Facts
