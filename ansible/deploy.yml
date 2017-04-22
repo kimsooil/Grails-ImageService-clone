@@ -70,6 +70,12 @@
     name: "{{ item.path }}"
     state: present
   with_items: "{{ iffind.files|default([]) }}"
+  register: if_result
+  tags:
+    - deploy
+- name: Debug result
+  debug:
+    msg: "{{ if_result }}"
   tags:
     - deploy     
 - name: Get ImageFetcher Facts
