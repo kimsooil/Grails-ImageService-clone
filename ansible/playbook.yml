@@ -7,7 +7,7 @@
       when: deploy_env == "Production"
       tags:
         - ImageFetcher
-        - ImageServer
+        - ImageService
         - deploy
     - name: Include development variables
       include_vars:
@@ -16,7 +16,7 @@
       when: "deploy_env in ['Development','Test']"
       tags:
         - ImageFetcher
-        - ImageServer
+        - ImageService
         - deploy
   roles:
     - imageservice
