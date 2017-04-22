@@ -6,15 +6,17 @@
         file: "{{ playbook_dir }}/common/secure_vars/image_service/production.yml"
       when: deploy_env == "Production"
       tags:
+        - ImageFetcher
+        - ImageServer
         - deploy
-        - data
     - name: Include development variables
       include_vars:
         file: "{{ playbook_dir }}/common/secure_vars/image_service/development.yml"
       # when: deploy_env == "Development" || deploy_env == "Test"
       when: "deploy_env in ['Development','Test']"
       tags:
+        - ImageFetcher
+        - ImageServer
         - deploy
-        - data    
   roles:
     - imageservice
