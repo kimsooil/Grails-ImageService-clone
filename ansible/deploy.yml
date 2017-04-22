@@ -38,11 +38,6 @@
   ignore_errors: True
   tags:
     - deploy
-- name: Debug
-  debug:
-    msg: "{{ is_result }}"
-  tags:
-    - deploy
 - name: Remove when backported
   yum:
     name: ImageService
