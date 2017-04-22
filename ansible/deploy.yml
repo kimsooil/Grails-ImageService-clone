@@ -38,11 +38,16 @@
   ignore_errors: True
   tags:
     - deploy
+- name: Debug
+  debug:
+    msg: "{{ is_result }}"
+  tags:
+    - deploy
 - name: Remove when backported
   yum:
     name: ImageService
     state: absent
-  when: not is_result.changed|default(false)|bool
+  when: "(not is_result.changed|default(false)|bool or 'FAILED' in is_result.stderr)"
   tags:
     - deploy    
 - name: Fresh install when backported
@@ -50,7 +55,7 @@
     name: "{{ item.path }}"
     state: present
   with_items: "{{ isfind.files|default([]) }}"
-  when: not is_result.changed|default(false)|bool
+  when: "(not is_result.changed|default(false)|bool or 'FAILED' in is_result.stderr)"
   tags:
     - deploy
 - name: enable image_service in systemd
