@@ -88,28 +88,33 @@
   tags: 
     - deploy
 - name: create image service config dir
-  file: path=/etc/nginx/sites-enabled
-        state=directory
-        mode=0755
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: 0755
+  with_items:
+    - /etc/nginx/sites-enabled
+    - /etc/nginx/conf.d
   tags: 
     - deploy
-- name: get the template facts
-  set_fact:
-    image_cert_with_ca_chain: "/etc/pki/tls/certs/{{ ansible_fqdn | replace('.', '_') }}.crt"
-    image_cert_key: "/etc/pki/tls/private/{{ ansible_fqdn | replace('.', '_') }}.key"
-    image_web_fqdn: "{{ ansible_fqdn }}"
+- name: create nginx config default
+  template:
+    src="{{ playbook_dir }}/templates/nginx/default.conf.j2"
+    dest=/etc/nginx/sites-available/default.conf
+    mode=0644
+    backup=no
   tags: 
     - deploy
 - name: create nginx config for image_service
   template:
     src="{{ playbook_dir }}/templates/nginx/image_service.conf.j2"
-    dest=/etc/nginx/sites-available/image_service.conf
+    dest=/etc/nginx/conf.d/image_service.conf
     mode=0644
     backup=no
   tags: 
     - deploy
-- file: path=/etc/nginx/sites-enabled/image_service.conf
-        src=/etc/nginx/sites-available/image_service.conf
+- file: path=/etc/nginx/sites-enabled/default.conf
+        src=/etc/nginx/sites-available/default.conf
         state=link
         force=yes
   notify:
