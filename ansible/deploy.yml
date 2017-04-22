@@ -97,24 +97,16 @@
     - /etc/nginx/conf.d
   tags: 
     - deploy
-- name: create nginx config default
-  template:
-    src="{{ playbook_dir }}/templates/nginx/default.conf.j2"
-    dest=/etc/nginx/sites-available/default.conf
-    mode=0644
-    backup=no
-  tags: 
-    - deploy
 - name: create nginx config for image_service
   template:
     src="{{ playbook_dir }}/templates/nginx/image_service.conf.j2"
-    dest=/etc/nginx/conf.d/image_service.conf
+    dest=/etc/nginx/sites-available/image_service.conf
     mode=0644
     backup=no
   tags: 
     - deploy
-- file: path=/etc/nginx/sites-enabled/default.conf
-        src=/etc/nginx/sites-available/default.conf
+- file: path=/etc/nginx/sites-enabled/image_service.conf
+        src=/etc/nginx/sites-available/image_service.conf
         state=link
         force=yes
   notify:
