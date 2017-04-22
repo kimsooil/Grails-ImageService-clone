@@ -65,16 +65,6 @@
             mode=0644
   tags: 
     - ImageService
-### Get certs in place
-- name: Prepare certs
-  file: path="{{ item }}"
-        state=directory
-        mode=0755
-  with_items:
-    - "../image_service/certs"
-    - "../image_service/private"
-  tags: 
-    - ImageService
 ### nginx configuration
 - name: create nginx config for image_service
   template: src="{{ playbook_dir }}/templates/nginx/image_service.conf.j2"
@@ -96,7 +86,7 @@
   tags:
     - ImageService    
 - name: Build ImageService RPM
-  shell: "fpm -s dir -t rpm -n {{ build_version.split('-') | first | quote }} -v {{ image_service_app_version | quote }} --iteration {{ package_revision | quote }} --description {{ 'USF Image Service' | quote }} --vendor {{ 'University of South Florida' | quote }} -d {{ 'nginx' | quote }} -d {{ 'haveged' | quote }} --config-files /opt/image_service/ImageService.groovy --config-files /etc/nginx/sites-available/image_service.conf -p ../ImageService/build/distributions ./ImageService/{{ build_version }}/.=/opt/{{ build_version }} {{ java_home }}/.=/opt/jdk8 ../image_service/ImageService.groovy=/opt/image_service/ImageService.groovy ../image_service/image_service=/etc/sysconfig/image_service ../image_service/image_service.service=/etc/systemd/system/image_service.service ../image_service/image_service.conf=/etc/nginx/sites-available/image_service.conf ../image_service/certs/.=/etc/pki/tls/certs ../image_service/private/.=/etc/pki/tls/private"
+  shell: "fpm -s dir -t rpm -n {{ build_version.split('-') | first | quote }} -v {{ image_service_app_version | quote }} --iteration {{ package_revision | quote }} --description {{ 'USF Image Service' | quote }} --vendor {{ 'University of South Florida' | quote }} -d {{ 'nginx' | quote }} -d {{ 'haveged' | quote }} --config-files /opt/image_service/ImageService.groovy --config-files /etc/nginx/sites-available/image_service.conf -p ../ImageService/build/distributions ./ImageService/{{ build_version }}/.=/opt/{{ build_version }} {{ java_home }}/.=/opt/jdk8 ../image_service/ImageService.groovy=/opt/image_service/ImageService.groovy ../image_service/image_service=/etc/sysconfig/image_service ../image_service/image_service.service=/etc/systemd/system/image_service.service ../image_service/image_service.conf=/etc/nginx/sites-available/image_service.conf"
   tags:
     - ImageService    
 
