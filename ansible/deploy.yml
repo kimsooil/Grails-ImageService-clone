@@ -35,6 +35,7 @@
     state: latest
   with_items: "{{ isfind.files|default([]) }}"
   register: is_result
+  ignore_errors: True
   tags:
     - deploy
 - name: Remove when backported
@@ -96,6 +97,7 @@
     state: latest
   with_items: "{{ iffind.files|default([]) }}"
   register: if_result
+  ignore_errors: True
   tags:
     - deploy
 - name: Remove when backported
