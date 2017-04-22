@@ -1,8 +1,4 @@
 ---
-- src: ssh://git@github.com/USF-IT/ansible-role-usf-imageservice.git
-  version: master
-  scm: git
-  name: imageservice
 - src: geerlingguy.repo-epel
   version: 1.2.0
   name: repo_epel

@@ -88,13 +88,6 @@
   command: "unzip -j -o {{ playbook_dir }}/files/jce/jce_policy-8.zip -d {{ java_home }}/jre/lib/security"
   tags:
     - ImageService
-- name: copy the oracle libraries into Java
-  copy:
-    dest: "{{ java_home }}/jre/lib/ext/ojdbc7.jar"
-    mode: 0644
-    src: "{{ playbook_dir }}/files/oracle/jdbc/12.1.0.2/ojdbc7.jar"    
-  tags:
-    - ImageService
 - name: Install trusted certs in Java
   copy:
     dest: "{{ java_home }}/jre/lib/security/jssecacerts"

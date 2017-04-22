@@ -14,7 +14,6 @@
     - { role: 'nginx', tags: ["deploy"] }
     - { role: 'certtool', tags: ["deploy"] }
     - { role: 'mavenlibsextra', tags: ["ImageFetcher"] }
-    # - imageservice
   tasks:
     - name: Ensure the fpm gem installed
       command: gem install fpm
