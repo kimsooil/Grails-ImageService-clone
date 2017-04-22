@@ -68,14 +68,29 @@
 - name: Install ImageFetcher RPM
   yum:
     name: "{{ item.path }}"
-    state: present
+    state: latest
   with_items: "{{ iffind.files|default([]) }}"
   register: if_result
   tags:
     - deploy
+- name: Remove when backported
+  yum:
+    name: ImageFetcher
+    state: absent
+  when: not if_result.changed|default(false)|bool
+  tags:
+    - deploy    
+- name: Fresh install when backported
+  yum:
+    name: "{{ item.path }}"
+    state: present
+  with_items: "{{ iffind.files|default([]) }}"
+  when: not if_result.changed|default(false)|bool
+  tags:
+    - deploy
 - name: Debug result
   debug:
-    msg: "{{ if_result }}"
+    msg: "{{ if_result.changed|bool == True }}"
   tags:
     - deploy     
 - name: Get ImageFetcher Facts
