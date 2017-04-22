@@ -94,7 +94,7 @@
 - name: Install ImageFetcher RPM
   yum:
     name: "{{ item.path }}"
-    state: latest
+    state: present
   with_items: "{{ iffind.files|default([]) }}"
   register: if_result
   ignore_errors: True
