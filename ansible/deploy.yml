@@ -32,7 +32,7 @@
 - name: Install ImageService RPM
   yum:
     name: "{{ item.path }}"
-    state: latest
+    state: present
   with_items: "{{ isfind.files|default([]) }}"
   register: is_result
   ignore_errors: True
