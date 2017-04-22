@@ -20,7 +20,7 @@
         - deploy
   roles:
     - { role: 'repo_epel', tags: ["deploy"] }
-    - { role: 'nginx', tags:["deploy"] }
+    - { role: 'nginx', tags: ["deploy"] }
     - { role: 'certtool', tags: ["deploy"] }
     - { role: 'mavenlibsextra', tags: ["ImageFetcher"] }
     - imageservice
