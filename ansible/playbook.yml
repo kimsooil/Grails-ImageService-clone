@@ -32,3 +32,20 @@
       include: deploy.yml
       tags:
         - deploy
+    - name: create nginx config for cims-hrid-ui
+      template:
+        src: "{{ playbook_dir }}/templates/nginx/shared/image_service.conf.j2"
+        dest: "/etc/nginx/shared/image_service.conf"
+        mode: 0644
+        backup: no
+      tags:
+        - deploy
+    - name: Enable and start nginx
+      service:
+        name: "{{ item }}"
+        enabled: yes
+        state: restarted
+      with_items:
+        - nginx
+      tags: 
+        - deploy 

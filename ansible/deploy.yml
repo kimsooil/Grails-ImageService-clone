@@ -75,7 +75,7 @@
     enabled: yes
     state: restarted
   tags:
-    - debug
+    - deploy
 - name: Copy rpm to remote host
   copy:
     src: "{{ item }}"
@@ -125,37 +125,6 @@
     image_fetcher_version: "{{ build_version.split('-')[1] }}"
   tags: 
     - deploy 
-### nginx configuration
-- name: remove the default nginx configuration
-  file: path=/etc/nginx/sites-enabled/default.conf state=absent
-  tags: 
-    - deploy
-- name: create image service config dir
-  file:
-    path: "{{ item }}"
-    state: directory
-    mode: 0755
-  with_items:
-    - /etc/nginx/sites-enabled
-    - /etc/nginx/conf.d
-  tags: 
-    - deploy
-- name: create nginx config for image_service
-  template:
-    src="{{ playbook_dir }}/templates/nginx/image_service.conf.j2"
-    dest=/etc/nginx/sites-available/image_service.conf
-    mode=0644
-    backup=no
-  tags: 
-    - deploy
-- file: path=/etc/nginx/sites-enabled/image_service.conf
-        src=/etc/nginx/sites-available/image_service.conf
-        state=link
-        force=yes
-  notify:
-    - restart nginx
-  tags: 
-    - deploy
 #### Add cron entries for ImageFetcher
 - name: Fetch new images every 30 min
   cron: name="Fetch new images every 30 mins"
@@ -197,3 +166,6 @@
     - restart iptables
   tags: 
     - deploy
+### nginx configuration
+- name: Setup nginx host
+  include: nginx.yml    

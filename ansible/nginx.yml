@@ -1,0 +1,25 @@
+---
+- name: remove the default nginx configuration
+  file: 
+    path: /etc/nginx/sites-enabled/default.conf 
+    state: absent
+- name: create nginx config dir
+  file: 
+    path: "{{ item }}"
+    state: directory
+    mode: 0755
+  with_items:
+    - /etc/nginx/sites-enabled
+    - /etc/nginx/shared
+- name: create nginx config for cims-hrid
+  template:
+    src: "{{ playbook_dir }}/templates/nginx/host.conf.j2"
+    dest: "/etc/nginx/sites-available/{{  inventory_hostname_short }}.conf"
+    mode: 0644
+    backup: no
+- name: enable nginx config
+  file: 
+    path: "/etc/nginx/sites-enabled/{{  inventory_hostname_short }}.conf"
+    src: "/etc/nginx/sites-available/{{  inventory_hostname_short }}.conf"
+    state: link
+    force: yes
