@@ -16,7 +16,7 @@ plugins {
     id "io.spring.dependency-management" version "0.4.0.RELEASE"
 }
 
-version "${appVersion}"
+version project.appVersion
 group "edu.usf.cims.ImageService"
 
 apply plugin: "spring-boot"
