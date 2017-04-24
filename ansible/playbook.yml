@@ -32,7 +32,7 @@
       include: deploy.yml
       tags:
         - deploy
-    - name: create nginx config for cims-hrid-ui
+    - name: create nginx config for image_service
       template:
         src: "{{ playbook_dir }}/templates/nginx/shared/image_service.conf.j2"
         dest: "/etc/nginx/shared/image_service.conf"
