@@ -40,6 +40,12 @@
         backup: no
       tags:
         - deploy
+    - name: Purge legacy nginx config
+      file:
+        path: /etc/nginx/sites-enabled/image_service.conf
+        state: absent
+      tags:
+        - deploy        
     - name: Enable and start nginx
       service:
         name: "{{ item }}"
