@@ -180,17 +180,23 @@
     state: "{{ item }}"
   with_items:    
     - directory
+  ignore_errors: True
   tags: 
-    - deploy            
-- name: Setup fstab for mount point
-  mount:
-    state: "mounted" 
-    fstype: "cifs" 
-    opts: "credentials=/etc/diamond.fastmail.usf.edu.cred"
-    src: "{{ image_card_share | replace('\\','/') }}"
-    name: "/mnt/idcard"
-  tags:
     - deploy
+# This Module has a bug - can restore it when bug gets fixed in ansible
+# Needs to produce something like
+# \\ntap255.forest.usf.edu\IDCARD-PPRD-Photos$ /mnt/idcard cifs credentials=/etc/diamond.fastmail.usf.edu.cred 1 1
+# or
+# \\ntap255.forest.usf.edu\IDCARD-PROD-Photos$ /mnt/idcard cifs credentials=/etc/diamond.fastmail.usf.edu.cred 1 1
+#- name: Setup fstab for mount point
+#  mount:
+#    state: "mounted" 
+#    fstype: "cifs" 
+#    opts: "credentials=/etc/diamond.fastmail.usf.edu.cred"
+#    src: "{{ image_card_share | replace('\\','/') }}"
+#    name: "/mnt/idcard"
+#  tags:
+#    - deploy
 ### nginx configuration
 - name: Setup nginx host
   include: nginx.yml    
