@@ -148,6 +148,7 @@
         user="root"
         job=". /etc/profile;export JAVA_HOME=/opt/jdk8;export JAVA_OPTS=-Djava.security.egd=file:/dev/./urandom;/opt/ImageFetcher-{{ if_app_version }}/bin/ImageFetcher --config /opt/image_service/ImageFetcher.groovy 2>&1"
         cron_file="ansible_fetch-images"
+        state="present"
   tags: 
     - deploy 
 - name: Refresh all images once a month
@@ -158,6 +159,7 @@
         user="root"
         job=". /etc/profile;export JAVA_HOME=/opt/jdk8;export JAVA_OPTS=-Djava.security.egd=file:/dev/./urandom;/opt/ImageFetcher-{{ if_app_version }}/bin/ImageFetcher --all --config /opt/image_service/ImageFetcher.groovy 2>&1"
         cron_file="ansible_fetch-images"
+        state="present"
   tags: 
     - deploy 
 - name: Check the mountpoint every 5 minutes
