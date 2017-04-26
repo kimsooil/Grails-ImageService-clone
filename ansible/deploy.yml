@@ -146,7 +146,7 @@
         hour="8-19"
         minute={{ ['0,30','15,45','20,50','10,40','5,35','25,55']|random }}
         user="root"
-        job=". /etc/profile;export JAVA_HOME=/opt/jdk8;export JAVA_OPTS=-Djava.security.egd=file:/dev/./urandom;/opt/ImageFetcher-{{ image_fetcher_version}}/bin/ImageFetcher --config /opt/image_service/ImageFetcher.groovy 2>&1"
+        job=". /etc/profile;export JAVA_HOME=/opt/jdk8;export JAVA_OPTS=-Djava.security.egd=file:/dev/./urandom;/opt/ImageFetcher-{{ if_app_version }}/bin/ImageFetcher --config /opt/image_service/ImageFetcher.groovy 2>&1"
         cron_file="ansible_fetch-images"
   tags: 
     - deploy 
@@ -156,7 +156,7 @@
         minute={{ 59 |random }}
         day={{ 7 |random(start=1) }}
         user="root"
-        job=". /etc/profile;export JAVA_HOME=/opt/jdk8;export JAVA_OPTS=-Djava.security.egd=file:/dev/./urandom;/opt/ImageFetcher-{{ image_fetcher_version}}/bin/ImageFetcher --all --config /opt/image_service/ImageFetcher.groovy 2>&1"
+        job=". /etc/profile;export JAVA_HOME=/opt/jdk8;export JAVA_OPTS=-Djava.security.egd=file:/dev/./urandom;/opt/ImageFetcher-{{ if_app_version }}/bin/ImageFetcher --all --config /opt/image_service/ImageFetcher.groovy 2>&1"
         cron_file="ansible_fetch-images"
   tags: 
     - deploy 
