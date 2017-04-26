@@ -166,6 +166,31 @@
     - restart iptables
   tags: 
     - deploy
+### mount configuration
+- name: create ImageFetcher credentials file
+  template:
+    src: "{{ playbook_dir }}/templates/image_fetcher/diamond.fastmail.usf.edu.cred.j2"
+    dest: /etc/diamond.fastmail.usf.edu.cred
+    mode: 0600
+  tags:
+    - deploy
+- name: create mount folder
+  file: 
+    path: /mnt/idcard
+    state: "{{ item }}"
+  with_items:    
+    - directory
+  tags: 
+    - deploy            
+- name: Setup fstab for mount point
+  mount:
+    state: "mounted" 
+    fstype: "cifs" 
+    opts: "credentials=/etc/diamond.fastmail.usf.edu.cred"
+    src: "{{ image_card_share | replace('\\','/') }}"
+    name: "/mnt/idcard"
+  tags:
+    - deploy
 ### nginx configuration
 - name: Setup nginx host
   include: nginx.yml    

@@ -16,11 +16,11 @@ image_service_port: 9001
 image_web_port: 443
 image_web_fqdn: image.it.usf.edu
 
-image_card_host: 'windows_host'
-image_card_share: '\\photos\\USF'
-image_card_user: 'it-imagesrv'
-image_card_domain: 'FOREST'
-image_card_password: ''
+# image_card_host: 'windows_host'
+# image_card_share: '\\photos\\USF'
+# image_card_user: 'it-imagesrv'
+# image_card_domain: 'FOREST'
+# image_card_password: ''
 
 image_cert_with_ca_chain: /etc/pki/tls/certs/image_it_usf_edu.cert
 image_cert_key_enc: /etc/pki/tls/private/image_it_usf_edu.key.des
