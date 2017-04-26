@@ -127,15 +127,15 @@
     - deploy
 - name: create ImageService config file
   template:
-    src: "{{ playbook_dir }}/templates/image_service/ImageService.conf.j2"
-    dest: /opt/image_service/ImageService.conf
+    src: "{{ playbook_dir }}/templates/image_service/ImageService.groovy.j2"
+    dest: /opt/image_service/ImageService.groovy
     mode: 0644
   tags:
     - deploy
 - name: create ImageFetcher config file
   template:
-    src: "{{ playbook_dir }}/templates/image_service/ImageFetcher.conf.j2"
-    dest: /opt/image_service/ImageFetcher.conf
+    src: "{{ playbook_dir }}/templates/image_service/ImageFetcher.groovy.j2"
+    dest: /opt/image_service/ImageFetcher.groovy
     mode: 0644
   tags:
     - deploy    
