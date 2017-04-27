@@ -42,7 +42,7 @@
   yum:
     name: ImageService
     state: absent
-  when: "is_result.failed|default(false)|bool || not is_result.changed|default(true)|bool"
+  when: "is_result.failed|default(false)|bool or not is_result.changed|default(true)|bool"
   tags:
     - deploy    
 - name: Fresh install when backported
@@ -104,7 +104,7 @@
   yum:
     name: ImageFetcher
     state: absent
-  when: "if_result.failed|default(false)|bool || not if_result.changed|default(true)|bool"
+  when: "if_result.failed|default(false)|bool or not if_result.changed|default(true)|bool"
   tags:
     - deploy    
 - name: Fresh install when backported
