@@ -80,30 +80,35 @@ image_service:
     defaultImage: grails-app/assets/images/rocky.jpg
     normalImageDir: grails-app/assets/images
     privateImageDir: grails-app/assets/images/private
-
+    inactiveImageDir: grails-app/assets/images/inactive
+    
     #Keys to decrypt tokens with
     services:
         test:
             tokenAlg: AES
             privacy: true
+            showInactive: 0
             separator: '|'
             encoding: ASCII
             key: AfoaKlDM4AjVyjo38f0NOs4O6hXM1T32
         test2:
             tokenAlg: SHA-1
             privacy: true
+            showInactive: 0
             separator: '-'
             encoding: ASCII
             key: 8fKqPyfAah56cRXM0Qafkom10zn7Upw2
         test3:
             tokenAlg: HmacSHA1
             privacy: true
+            showInactive: 0
             separator: '_'
             encoding: UTF-8
             key: bfTkmK8CxKAQMABJ5Wg1xmqycvvxkdLa
         test4:
             tokenAlg: HmacSHA256
             privacy: false
+            showInactive: 0
             separator: '|'
             encoding: UTF-8
             key: 6JGeveYG70dhuYXWF7JGWzzG84P4BRgn

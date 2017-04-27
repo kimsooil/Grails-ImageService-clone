@@ -1,0 +1,60 @@
+---
+- hosts: "{{ target_hosts }}"
+  pre_tasks:
+    - name: Add env vars
+      include: env_vars.yml
+      tags:
+        - ImageFetcher
+        - ImageService
+        - deploy
+  vars:
+    is_app_version: "{{ lookup('ini', 'appVersion type=properties file=../ImageService/gradle.properties') }}"    
+    if_app_version: "{{ lookup('ini', 'appVersion type=properties file=../ImageFetcher/gradle.properties') }}"    
+  vars_files:
+    - ./vars/main.yml
+  roles:
+    - { role: 'repo_epel', tags: ["deploy"] }
+    - { role: 'nginx', tags: ["deploy"] }
+    - { role: 'certtool', tags: ["deploy"] }
+    - { role: 'mavenlibsextra', tags: ["ImageFetcher"] }
+  tasks:
+    - name: Ensure the fpm gem installed
+      command: gem install fpm
+      tags:
+        - ImageFetcher  
+        - ImageService
+    - name: Setup ImageFetcher
+      include: ImageFetcher.yml
+      tags:
+        - ImageFetcher  
+    - name: Setup ImageService
+      include: ImageService.yml
+      tags:
+        - ImageService  
+    - name: Deploy ImageService and ImageFetcher
+      include: deploy.yml
+      tags:
+        - deploy
+    - name: create nginx config for image_service
+      template:
+        src: "{{ playbook_dir }}/templates/nginx/shared/image_service.conf.j2"
+        dest: "/etc/nginx/shared/image_service.conf"
+        mode: 0644
+        backup: no
+      tags:
+        - deploy
+    - name: Purge legacy nginx config
+      file:
+        path: /etc/nginx/sites-enabled/image_service.conf
+        state: absent
+      tags:
+        - deploy        
+    - name: Enable and start nginx
+      service:
+        name: "{{ item }}"
+        enabled: yes
+        state: restarted
+      with_items:
+        - nginx
+      tags: 
+        - deploy 

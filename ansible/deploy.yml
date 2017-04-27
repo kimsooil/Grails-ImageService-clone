@@ -1,0 +1,218 @@
+---
+- name: upgrade all packages
+  yum:
+    name: '*'
+    state: latest
+  tags:
+    - deploy    
+- name: create package folder
+  file: 
+    path: /tmp/rpms
+    state: "{{ item }}"
+  with_items:
+    - absent
+    - directory
+  tags: 
+    - deploy        
+- name: Copy rpm to remote host
+  copy:
+    src: "{{ item }}"
+    dest: /tmp/rpms
+  with_fileglob:
+    - "../ImageService/build/distributions/ImageService*.rpm"
+  tags: 
+    - deploy          
+- name: Find the ImageService RPM that was produced
+  find: 
+    paths: "/tmp/rpms" 
+    patterns: "ImageService*.rpm"
+  register: isfind
+  tags:
+    - deploy     
+- name: Install ImageService RPM
+  yum:
+    name: "{{ item.path }}"
+    state: present
+  with_items: "{{ isfind.files|default([]) }}"
+  register: is_result
+  ignore_errors: True
+  tags:
+    - deploy
+- name: Remove when backported
+  yum:
+    name: ImageService
+    state: absent
+  when: "is_result.failed|default(false)|bool"
+  tags:
+    - deploy    
+- name: Fresh install when backported
+  yum:
+    name: "{{ item.path }}"
+    state: present
+  with_items: "{{ isfind.files|default([]) }}"
+  when: "is_result.failed|default(false)|bool"
+  tags:
+    - deploy
+- name: enable image_service in systemd
+  command: /bin/systemctl enable image_service.service
+           creates='/etc/systemd/system/multi-user.target.wants/image_service.service'
+  tags: 
+    - deploy
+- name: reload units
+  command: /bin/systemctl daemon-reload
+  tags:
+    - deploy
+- name: Enable haveged
+  service:
+    name: haveged
+    enabled: yes
+    state: restarted
+  tags:
+    - deploy
+- name: Enable and restart image_service
+  service:
+    name: image_service
+    enabled: yes
+    state: restarted
+  tags:
+    - deploy
+- name: Copy rpm to remote host
+  copy:
+    src: "{{ item }}"
+    dest: /tmp/rpms
+  with_fileglob:
+    - "../ImageFetcher/build/distributions/ImageFetcher*.rpm"
+  tags: 
+    - deploy              
+- name: Find the ImageFetcher RPM that was produced
+  find: 
+    paths: "/tmp/rpms" 
+    patterns: "ImageFetcher*.rpm"
+  register: iffind
+  tags:
+    - deploy     
+- name: Install ImageFetcher RPM
+  yum:
+    name: "{{ item.path }}"
+    state: present
+  with_items: "{{ iffind.files|default([]) }}"
+  register: if_result
+  ignore_errors: True
+  tags:
+    - deploy
+- name: Remove when backported
+  yum:
+    name: ImageFetcher
+    state: absent
+  when: if_result.failed|default(false)|bool
+  tags:
+    - deploy    
+- name: Fresh install when backported
+  yum:
+    name: "{{ item.path }}"
+    state: present
+  with_items: "{{ iffind.files|default([]) }}"
+  when: if_result.failed|default(false)|bool
+  tags:
+    - deploy
+- name: Get ImageFetcher Facts
+  set_fact:
+    build_version: "{{ iffind.files[0].path | basename | splitext | first }}"
+  tags:
+    - deploy  
+- name: Create Another ImageFetcher Fact
+  set_fact: 
+    image_fetcher_version: "{{ build_version.split('-')[1] }}"
+  tags: 
+    - deploy
+- name: create ImageService config file
+  template:
+    src: "{{ playbook_dir }}/templates/image_service/ImageService.groovy.j2"
+    dest: /opt/image_service/ImageService.groovy
+    mode: 0644
+  tags:
+    - deploy
+- name: create ImageFetcher config file
+  template:
+    src: "{{ playbook_dir }}/templates/image_service/ImageFetcher.groovy.j2"
+    dest: /opt/image_service/ImageFetcher.groovy
+    mode: 0644
+  tags:
+    - deploy    
+#### Add cron entries for ImageFetcher
+- name: Fetch new images every 30 min
+  cron: name="Fetch new images every 30 mins"
+        weekday="1-5"
+        hour="8-19"
+        minute={{ ['0,30','15,45','20,50','10,40','5,35','25,55']|random }}
+        user="root"
+        job=". /etc/profile;export JAVA_HOME=/opt/jdk8;export JAVA_OPTS=-Djava.security.egd=file:/dev/./urandom;/opt/ImageFetcher-{{ if_app_version }}/bin/ImageFetcher --config /opt/image_service/ImageFetcher.groovy 2>&1"
+        cron_file="ansible_fetch-images"
+        state="present"
+  tags: 
+    - deploy 
+- name: Refresh all images once a month
+  cron: name="Refresh all images once a month"
+        hour={{ 4 |random }}
+        minute={{ 59 |random }}
+        day={{ 7 |random(start=1) }}
+        user="root"
+        job=". /etc/profile;export JAVA_HOME=/opt/jdk8;export JAVA_OPTS=-Djava.security.egd=file:/dev/./urandom;/opt/ImageFetcher-{{ if_app_version }}/bin/ImageFetcher --all --config /opt/image_service/ImageFetcher.groovy 2>&1"
+        cron_file="ansible_fetch-images"
+        state="present"
+  tags: 
+    - deploy 
+- name: Check the mountpoint every 5 minutes
+  cron: name="Ensure the card center share is mounted"
+        minute="*/5"
+        user="root"
+        job=". /etc/profile;export JAVA_HOME=/opt/jdk8;export JAVA_OPTS=-Djava.security.egd=file:/dev/./urandom;/usr/local/sbin/check_cardcenter_mount.sh"
+        cron_file="ansible_fetch-images"
+  tags: 
+    - deploy
+#### Open web ports
+- name: Open the correct IPTables ports
+  lineinfile: dest=/etc/sysconfig/iptables
+              regexp="^-A INPUT -p {{item.protocol}} -m state --state NEW -m {{item.protocol}} --dport {{item.port}} -j ACCEPT$"
+              line="-A INPUT -p {{item.protocol}} -m state --state NEW -m {{item.protocol}} --dport {{item.port}} -j ACCEPT"
+              insertbefore="^-A INPUT -j REJECT --reject-with icmp-host-prohibited$"
+  with_items:
+    - { protocol: tcp, port: "{{ image_web_port }}" }
+  notify:
+    - restart iptables
+  tags: 
+    - deploy
+### mount configuration
+- name: create ImageFetcher credentials file
+  template:
+    src: "{{ playbook_dir }}/templates/image_fetcher/diamond.fastmail.usf.edu.cred.j2"
+    dest: /etc/diamond.fastmail.usf.edu.cred
+    mode: 0600
+  tags:
+    - deploy
+- name: create mount folder
+  file: 
+    path: /mnt/idcard
+    state: "{{ item }}"
+  with_items:    
+    - directory
+  ignore_errors: True
+  tags: 
+    - deploy
+# This Module has a bug - can restore it when bug gets fixed in ansible
+# Needs to produce something like
+# \\ntap255.forest.usf.edu\IDCARD-PPRD-Photos$ /mnt/idcard cifs credentials=/etc/diamond.fastmail.usf.edu.cred 1 1
+# or
+# \\ntap255.forest.usf.edu\IDCARD-PROD-Photos$ /mnt/idcard cifs credentials=/etc/diamond.fastmail.usf.edu.cred 1 1
+#- name: Setup fstab for mount point
+#  mount:
+#    state: "mounted" 
+#    fstype: "cifs" 
+#    opts: "credentials=/etc/diamond.fastmail.usf.edu.cred"
+#    src: "{{ image_card_share | replace('\\','/') }}"
+#    name: "/mnt/idcard"
+#  tags:
+#    - deploy
+### nginx configuration
+- name: Setup nginx host
+  include: nginx.yml    

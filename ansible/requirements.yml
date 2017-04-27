@@ -1,0 +1,33 @@
+---
+- src: geerlingguy.repo-epel
+  version: 1.2.0
+  name: repo_epel
+  tags:
+    - deploy
+- src: jdauphant.nginx
+  version: v2.6
+  name: nginx
+  tags: 
+    - deploy
+  nginx_http_params:
+    - sendfile "on"
+    - tcp_nopush "on"
+    - tcp_nodelay "on"
+    - keepalive_timeout "65"
+    - access_log "/var/log/nginx/access.log"
+    - error_log "/var/log/nginx/error.log"
+    - server_tokens off
+    - types_hash_max_size 2048
+    - client_max_body_size "3M"
+- src: ssh://git@github.com/USF-IT/cims-ansible-role-certtool.git
+  version: master
+  scm: git
+  name: certtool
+  tags:
+    - deploy
+- src: ssh://git@github.com/USF-IT/cims-ansible-role-maven-libs-extra.git
+  version: master
+  scm: git
+  name: mavenlibsextra
+  tags:
+    - ImageFetcher      

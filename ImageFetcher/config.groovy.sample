@@ -10,3 +10,6 @@ config.newBaseDir = '/opt/share/images'
 
 // Where to store the images of people with privacy set
 config.privateDir = "${config.newBaseDir}/private"
+
+// Where to store the images of people without active cards
+config.inactiveDir = "${config.newBaseDir}/inactive"

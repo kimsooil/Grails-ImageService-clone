@@ -16,10 +16,13 @@ class ImageLocatorServiceSpec extends Specification {
         c.image_service.defaultImage = "grails-app/assets/images/rocky.jpg"
         c.image_service.normalImageDir = "grails-app/assets/images"
         c.image_service.privateImageDir = "grails-app/assets/images/private"
+        c.image_service.privateImageDir = "grails-app/assets/images/private"
+        c.image_service.inactiveImageDir = "grails-app/assets/images/inactive"
 
         c.image_service.services.public_test = [
                 tokenAlg: 'AES',
                 privacy: false,
+                showInactive: false,
                 separator: '|',
                 encoding: 'ASCII',
                 key: 'AfoaKlDM4AjVyjo38f0NOs4O6hXM1T32'
@@ -27,6 +30,15 @@ class ImageLocatorServiceSpec extends Specification {
         c.image_service.services.private_test = [
                 tokenAlg: 'SHA-1',
                 privacy: true,
+                showInactive: false,
+                separator: '_',
+                encoding: 'ASCII',
+                key: '8fKqPyfAah56cRXM0Qafkom10zn7Upw2'
+        ]
+        c.image_service.services.inactive_test = [
+                tokenAlg: 'SHA-1',
+                privacy: true,
+                showInactive: true,
                 separator: '_',
                 encoding: 'ASCII',
                 key: '8fKqPyfAah56cRXM0Qafkom10zn7Upw2'
@@ -106,5 +118,17 @@ class ImageLocatorServiceSpec extends Specification {
         result.type == "private_image"
         result.file instanceof java.io.File
         result.file.path.contains 'grails-app/assets/images/private/U34567890.jpg'
+    }
+    
+    def "Return a inactive image"() {
+        given:
+        def imageLocatorService=grailsApplication.mainContext.getBean('imageLocatorService')
+
+        when:
+        def result = imageLocatorService.locate('inactive_test', [result: "success", message: "U45678012"])
+        then:
+        result.type == "inactive_image"
+        result.file instanceof java.io.File
+        result.file.path.contains 'grails-app/assets/images/inactive/U45678012.jpg'      
     }
 }
