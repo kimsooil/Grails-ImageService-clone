@@ -10,14 +10,6 @@ node('master') {
   stage('Get Ansible Roles') {
     sh 'ansible-galaxy install -r ansible/requirements.yml -p ansible/roles/ -f'
   }
-  stage('Get inventory') {
-    dir('ansible/common') {
-      git url: 'git@github.com:USF-IT/idm-ansible-common.git', branch: 'master'
-    }
-    dir('ansible/inventory') {
-      git url: 'git@github.com:USF-IT/cims-ansible-inventory.git', branch: 'master'
-    }
-  }
   stage('Build ImageFetcher') {
     sh "ansible-playbook -i 'localhost,' -c local --vault-password-file=${env.USF_ANSIBLE_VAULT_KEY} ansible/playbook.yml --extra-vars 'target_hosts=all java_home=${env.JAVA_HOME} deploy_env=${env.DEPLOY_ENV} package_revision=${env.BUILD_NUMBER}' -t ImageFetcher"
   }
@@ -26,7 +18,7 @@ node('master') {
   }
   stage('Deploy ImageFetcher and ImageService') {
     sshagent (credentials: ['jenkins']) {
-      sh "ansible-playbook -i ansible/inventory/${env.DEPLOY_ENV.toLowerCase()}/hosts --user=jenkins --vault-password-file=${env.USF_ANSIBLE_VAULT_KEY} ansible/playbook.yml --extra-vars 'target_hosts=image_service java_home=${env.JAVA_HOME} deploy_env=${env.DEPLOY_ENV} package_revision=${env.PACKAGE_REVISION}' -b -t deploy -vvv"    
+      sh "ansible-playbook -i ansible/roles/inventory/${env.DEPLOY_ENV.toLowerCase()}/hosts --user=jenkins --vault-password-file=${env.USF_ANSIBLE_VAULT_KEY} ansible/playbook.yml --extra-vars 'target_hosts=image_service java_home=${env.JAVA_HOME} deploy_env=${env.DEPLOY_ENV} package_revision=${env.PACKAGE_REVISION}' -b -t deploy -vvv"    
     }
   }
   stage('Build RPM artifacts') {

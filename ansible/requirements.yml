@@ -19,8 +19,16 @@
     - server_tokens off
     - types_hash_max_size 2048
     - client_max_body_size "3M"
-- src: ssh://git@github.com/USF-IT/cims-ansible-role-certtool.git
+- src: ssh://git@github.com/USF-IT/cims-ansible-inventory.git
   version: master
+  scm: git
+  name: inventory
+- src: ssh://git@github.com/USF-IT/idm-ansible-common.git
+  version: master
+  scm: git
+  name: common        
+- src: ssh://git@github.com/USF-IT/cims-ansible-role-certtool.git
+  version: develop
   scm: git
   name: certtool
   tags:
